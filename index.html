@@ -271,35 +271,46 @@
     }
 
     function sendOrder() {
-        const orderItems = menuData.filter(p => cart[p.id] > 0);
-        if (orderItems.length === 0) {
-            alert("先選點好吃的東西吧！");
-            return;
-        }
-
-        let orderText = "📋 我的點餐紀錄：\n";
-        orderItems.forEach(item => {
-            orderText += `- ${item.item} x ${cart[item.id]}\n`;
-        });
-        orderText += `\n總計：${document.getElementById('total-price').innerText}`;
-
-        // 模擬成功動畫邏輯
-        const showSuccess = () => {
-            document.getElementById('success-overlay').style.display = 'flex';
-            setTimeout(() => {
-                if (liff.isInClient()) liff.closeWindow();
-                else document.getElementById('success-overlay').style.display = 'none';
-            }, 2000);
-        };
-
-        if (liff.isInClient()) {
-            liff.sendMessages([{ type: 'text', text: orderText }])
-                .then(() => showSuccess())
-                .catch(err => alert('發送失敗'));
-        } else {
-            showSuccess();
-        }
+    const orderItems = menuData.filter(p => cart[p.id] > 0);
+    if (orderItems.length === 0) {
+        alert("先選點好吃的東西吧！");
+        return;
     }
+
+    // 1. 整理明細文字，供二次確認使用
+    let summaryText = "";
+    orderItems.forEach(item => {
+        summaryText += `${item.item} x ${cart[item.id]}\n`;
+    });
+    const totalText = document.getElementById('total-price').innerText;
+
+    // 2. 彈出二次確認視窗 (使用瀏覽器內建 confirm)
+    const isConfirmed = confirm(
+        `📝 請確認您的訂單內容：\n\n${summaryText}\n合計金額：${totalText}\n\n確定要送出嗎？`
+    );
+
+    // 3. 使用者按下「取消」就停止執行
+    if (!isConfirmed) return;
+
+    // 4. 使用者按下「確定」，開始原有的送出邏輯
+    let orderLineText = "📋 我的點餐紀錄：\n" + summaryText + "\n總計：" + totalText;
+
+    const showSuccess = () => {
+        document.getElementById('success-overlay').style.display = 'flex';
+        setTimeout(() => {
+            if (liff.isInClient()) liff.closeWindow();
+            else document.getElementById('success-overlay').style.display = 'none';
+        }, 2000);
+    };
+
+    if (liff.isInClient()) {
+        liff.sendMessages([{ type: 'text', text: orderLineText }])
+            .then(() => showSuccess())
+            .catch(err => alert('發送失敗'));
+    } else {
+        showSuccess();
+    }
+}
 
     initLIFF();
     renderMenu();
