@@ -9,11 +9,10 @@
 
     <style>
         :root {
-            /* 厚實深咖啡配色 */
-            --dark-espresso: #2D1B14;       /* 濃縮咖啡黑 */
-            --coffee-bean: #4E342E;         /* 烘焙豆棕 */
-            --parchment: #FDFBF9;           /* 暖奶油白背景 */
-            --price-accent: #8D4B39;        /* 濃郁棕 (價格) */
+            --dark-espresso: #2D1B14;
+            --coffee-bean: #4E342E;
+            --parchment: #FDFBF9;
+            --price-accent: #8D4B39;
             --card-shadow: 0 8px 20px rgba(45, 27, 20, 0.1);
             --primary-gradient: linear-gradient(135deg, #8D4B39 0%, #2D1B14 100%);
         }
@@ -37,19 +36,14 @@
         }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* 頂部橫幅 */
         .hero-banner {
             width: 100%; height: 140px; 
             background: linear-gradient(135deg, #1A100C 0%, #3D261E 100%);
             border-radius: 0 0 30px 30px; display: flex; align-items: flex-end; padding-bottom: 35px;
         }
         .hero-content { padding-left: 25px; color: #FFF; }
-        .status-badge {
-            background: rgba(255, 255, 255, 0.12); padding: 4px 12px; 
-            border-radius: 8px; font-size: 0.7rem; border: 1px solid rgba(255,255,255,0.2);
-        }
 
-        .container { max-width: 500px; margin: -25px auto 0 auto; padding: 0 15px 150px 15px; }
+        .container { max-width: 500px; margin: -25px auto 0 auto; padding: 0 15px 180px 15px; }
 
         .header-box {
             background: #FFF; padding: 18px; border-radius: 15px; 
@@ -57,80 +51,69 @@
             border-bottom: 4px solid var(--dark-espresso);
         }
 
-        /* 菜單卡片 (移除圖片空間) */
+        /* 菜單卡片 */
         .menu-item { 
             background: #FFF; margin-bottom: 12px; padding: 18px; border-radius: 15px;
             display: flex; align-items: center; justify-content: space-between;
             box-shadow: var(--card-shadow); border: 1px solid rgba(45, 27, 20, 0.05);
         }
         .item-info { flex: 1; padding-right: 15px; }
-        .item-name { font-weight: 700; font-size: 1.15rem; color: var(--dark-espresso); }
-        .item-note { font-size: 0.85rem; color: var(--coffee-bean); margin: 4px 0; opacity: 0.8; }
-        .item-price { color: var(--price-accent); font-weight: 700; font-size: 1.1rem; }
+        .item-name { font-weight: 700; font-size: 1.1rem; color: var(--dark-espresso); }
+        .item-note { font-size: 0.85rem; color: var(--coffee-bean); margin: 4px 0; opacity: 0.7; }
+        .item-price { color: var(--price-accent); font-weight: 700; }
 
-        /* 數量控制器 */
-        .controls { 
-            display: flex; align-items: center; gap: 12px; 
-            background: #F2E9E4; padding: 6px 12px; border-radius: 30px; 
-        }
+        .controls { display: flex; align-items: center; gap: 12px; background: #F2E9E4; padding: 6px 12px; border-radius: 30px; }
         .btn-circle {
             background: var(--dark-espresso); color: #FFF; border: none; 
-            width: 28px; height: 28px; border-radius: 50%; cursor: pointer; 
-            font-size: 1.2rem; display: flex; justify-content: center; align-items: center;
+            width: 26px; height: 26px; border-radius: 50%; cursor: pointer; 
+            font-size: 1.1rem; display: flex; justify-content: center; align-items: center;
         }
-        .btn-circle:active { transform: scale(0.9); opacity: 0.8; }
-        .quantity { font-weight: 700; color: var(--dark-espresso); min-width: 20px; text-align: center; }
+        .quantity { font-weight: 700; min-width: 20px; text-align: center; }
 
-        /* 底部結帳欄 */
+        /* 底部欄位優化 */
         .bottom-bar {
             position: fixed; bottom: 0; left: 0; right: 0; max-width: 500px; margin: auto;
             background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(15px);
-            padding: 20px 25px 40px 25px; border-radius: 25px 25px 0 0;
+            padding: 15px 25px 35px 25px; border-radius: 25px 25px 0 0;
             box-shadow: 0 -10px 30px rgba(45, 27, 20, 0.1); border-top: 1px solid #E0D7D2;
+            z-index: 1000;
         }
-        .total-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .total-price { color: var(--dark-espresso); font-size: 1.8rem; font-weight: 800; }
+        .total-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .total-price { color: var(--dark-espresso); font-size: 1.6rem; font-weight: 800; }
 
-        .button-row {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .submit-btn,
-        .history-btn {
-            width: 280px;
-            padding: 12px 20px;
-            font-size: 1rem;
-            border-radius: 50px;
-            border: none;
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
+        .button-row { display: flex; flex-direction: column; gap: 8px; align-items: center; }
 
         .submit-btn {
-            background: var(--primary-gradient);
-            color: white;
-            box-shadow: 0 8px 20px rgba(0, 185, 0, 0.25);
+            width: 100%; max-width: 320px; padding: 14px; font-size: 1rem; font-weight: 700;
+            background: var(--primary-gradient); color: white; border: none; border-radius: 50px;
+            box-shadow: 0 6px 15px rgba(141, 75, 57, 0.3); cursor: pointer;
         }
-
-        .submit-btn:hover:not(:disabled) { transform: translateY(-1px); }
-
-        .submit-btn:disabled {
-            background: #C6B7B0;
-            box-shadow: none;
-            cursor: not-allowed;
-        }
+        .submit-btn:disabled { background: #C6B7B0; box-shadow: none; opacity: 0.7; }
 
         .history-btn {
-            background: white;
-            color: var(--dark-espresso);
-            border: 1px solid rgba(0,0,0,0.08);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            background: transparent; color: var(--coffee-bean); border: none; 
+            font-size: 0.9rem; text-decoration: underline; cursor: pointer; padding: 5px;
         }
 
-        .history-btn:hover { background: #FBF5F2; }
+        /* 歷史訂單 彈窗 (Modal) */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(45, 27, 20, 0.6); z-index: 2000; justify-content: center; align-items: center;
+        }
+        .modal-content {
+            background: var(--parchment); width: 85%; max-width: 400px; max-height: 70vh;
+            border-radius: 20px; padding: 25px; overflow-y: auto; position: relative;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+        .modal-title { border-bottom: 2px solid var(--crema); padding-bottom: 10px; margin-bottom: 15px; color: var(--dark-espresso); font-weight: 700; }
+        .history-item { 
+            background: #FFF; padding: 12px; border-radius: 10px; margin-bottom: 10px; 
+            border-left: 4px solid var(--price-accent); font-size: 0.9rem;
+        }
+        .close-modal { 
+            display: block; width: 100%; padding: 10px; margin-top: 15px;
+            background: var(--dark-espresso); color: #FFF; border: none; border-radius: 10px; cursor: pointer;
+        }
 
         /* 成功動畫 */
         #success-overlay {
@@ -145,26 +128,39 @@
 </head>
 <body>
 
+    <!-- 讀取遮罩 -->
     <div id="loading-mask" class="loading-overlay">
-        <div class="loader">order</div>
-        <p style="color: var(--coffee-bean); margin-top: 15px; font-weight: 500;">回到點餐頁面...</p>
+        <div class="loader"></div>
+        <p style="color: var(--coffee-bean); margin-top: 15px; font-weight: 500;">載入菜單中...</p>
     </div>
 
+    <!-- 成功彈窗 -->
     <div id="success-overlay">
         <div class="checkmark-circle"><span style="color: #FFF; font-size: 40px;">✓</span></div>
         <h2 style="margin-top: 20px; color: var(--dark-espresso);">訂單已送出</h2>
     </div>
 
+    <!-- 歷史訂單 Modal -->
+    <div id="history-modal" class="modal">
+        <div class="modal-content">
+            <h3 class="modal-title">📜 歷史點餐記錄</h3>
+            <div id="history-list">
+                <!-- 動態注入內容 -->
+            </div>
+            <button class="close-modal" onclick="closeHistory()">關閉窗口</button>
+        </div>
+    </div>
+
     <div class="hero-banner">
         <div class="hero-content">
-            <div class="status-badge"></div>
-            <h1 style="margin: 8px 0 0 0; font-size: 1.6rem; font-weight: 700;">午餐團購</h1>
+            <h1 style="margin: 0; font-size: 1.6rem; font-weight: 700;">午餐團購專案</h1>
         </div>
     </div>
 
     <div class="container">
         <div class="header-box"><h2 id="display-name" style="margin:0; font-size:1.1rem;">🏪 載入中...</h2></div>
         <div id="menu-list"></div>
+        
         <div class="bottom-bar">
             <div class="total-row">
                 <span style="color: var(--coffee-bean); font-weight: 500;">結帳總額</span>
@@ -172,7 +168,7 @@
             </div>
             <div class="button-row">
                 <button class="submit-btn" id="submit-button" onclick="sendOrder()" disabled>確認點餐</button>
-                <button class="history-btn" onclick="showOrderHistory()">歷史訂單</button>
+                <button class="history-btn" onclick="showOrderHistory()">查看歷史訂單</button>
             </div>
         </div>
     </div>
@@ -189,7 +185,7 @@
 
     async function initLIFF() {
         try {
-            await liff.init({ liffId: "2006132646-rOQ8yDax" });
+            await liff.init({ liffId: "2006132646-rOQ8yDax" }); // 請更換為您的 LIFF ID
             if (!liff.isLoggedIn()) liff.login();
             const profile = await liff.getProfile();
             document.getElementById('display-name').innerText = `☕️ ${profile.displayName} 的專屬選單`;
@@ -238,48 +234,65 @@
         document.getElementById('submit-button').disabled = (total === 0);
     }
 
+    // 歷史紀錄邏輯
     function getOrderHistory() {
         return JSON.parse(localStorage.getItem('groupBuyOrderHistory') || '[]');
     }
 
     function saveOrderHistory(entry) {
         const history = getOrderHistory();
-        history.unshift(entry);
-        localStorage.setItem('groupBuyOrderHistory', JSON.stringify(history.slice(0, 10)));
+        history.unshift(entry); // 新訂單排前面
+        localStorage.setItem('groupBuyOrderHistory', JSON.stringify(history.slice(0, 10))); // 只存最近 10 筆
     }
 
     function showOrderHistory() {
         const history = getOrderHistory();
-        if (!history.length) {
-            alert('目前尚無歷史訂單。');
-            return;
+        const listContainer = document.getElementById('history-list');
+        
+        if (history.length === 0) {
+            listContainer.innerHTML = '<p style="text-align:center; padding:20px; color:#999;">目前尚無紀錄</p>';
+        } else {
+            listContainer.innerHTML = history.map(entry => {
+                const date = new Date(entry.createdAt).toLocaleString('zh-TW', { hour12: false });
+                const itemsStr = entry.items.map(i => `${i.name} x ${i.qty}`).join(', ');
+                return `
+                    <div class="history-item">
+                        <div style="color:#888; font-size:0.75rem;">${date}</div>
+                        <div style="font-weight:700; margin:5px 0;">${itemsStr}</div>
+                        <div style="color:var(--price-accent); text-align:right; font-weight:700;">合計：$${entry.total}</div>
+                    </div>
+                `;
+            }).join('');
         }
-        const historyText = history.map((entry, index) => {
-            const time = new Date(entry.createdAt).toLocaleString('zh-TW', { hour12: false });
-            const items = entry.items.map(item => `  ${item.name} x ${item.qty}`).join('\n');
-            return `${index + 1}. ${time}\n${items}\n  合計：$${entry.total}`;
-        }).join('\n\n');
-        alert(`📜 歷史訂單：\n\n${historyText}`);
+        document.getElementById('history-modal').style.display = 'flex';
+    }
+
+    function closeHistory() {
+        document.getElementById('history-modal').style.display = 'none';
     }
 
     function sendOrder() {
         const orderItems = menuData.filter(p => cart[p.id] > 0);
         let summary = orderItems.map(item => `${item.item} x ${cart[item.id]}`).join('\n');
-        const total = document.getElementById('total-price').innerText;
+        const totalStr = document.getElementById('total-price').innerText;
 
-        if (!confirm(`📝 確認訂單內容：\n\n${summary}\n合計：${total}`)) return;
+        if (!confirm(`📝 確認訂單內容：\n\n${summary}\n合計：${totalStr}`)) return;
 
-        const msg = `📋 我的點餐：\n${summary}\n總計：${total}`;
+        const msg = `📋 我的點餐：\n${summary}\n總計：${totalStr}`;
         const orderHistoryEntry = {
             createdAt: new Date().toISOString(),
-            items: orderItems.map(item => ({ name: item.item, qty: cart[item.id], price: item.price })),
-            total: total.replace('$', '')
+            items: orderItems.map(item => ({ name: item.item, qty: cart[item.id] })),
+            total: totalStr.replace('$', '')
         };
+
         const showSuccess = () => {
             saveOrderHistory(orderHistoryEntry);
             localStorage.removeItem('groupBuyCart');
             document.getElementById('success-overlay').style.display = 'flex';
-            setTimeout(() => { if (liff.isInClient()) liff.closeWindow(); else location.reload(); }, 2000);
+            setTimeout(() => { 
+                if (liff.isInClient()) liff.closeWindow(); 
+                else location.reload(); 
+            }, 2000);
         };
 
         if (liff.isInClient()) {
