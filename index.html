@@ -34,6 +34,13 @@
             padding: 0 20px 15px; position: relative;
         }
 
+        /* 找回歷史紀錄按鈕 */
+        .history-btn {
+            position: absolute; top: 15px; right: 15px;
+            background: rgba(255,255,255,0.2); color: white; border: none;
+            padding: 5px 15px; border-radius: 20px; font-size: 0.8rem; cursor: pointer;
+        }
+
         /* 菜單捲動區 */
         .menu-scroll-box { 
             flex: 1; overflow-y: auto !important; 
@@ -70,17 +77,17 @@
             justify-content: center; align-items: center;
         }
 
-        /* 🟢 成功送出頁面樣式 */
+        /* 成功送出頁面 */
         #success-page {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: white; z-index: 2000; display: none;
             flex-direction: column; justify-content: center; align-items: center;
-            text-align: center;
         }
 
-        .success-icon {
-            width: 80px; height: 80px; background: #4CAF50; color: white;
-            border-radius: 50%; font-size: 50px; line-height: 80px; margin-bottom: 20px;
+        /* 彈窗樣式 */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); z-index: 3000; justify-content: center; align-items: center;
         }
 
         .loader {
@@ -94,17 +101,29 @@
 </head>
 <body>
 
-    <!-- 成功提示頁面 -->
+    <!-- 🟢 成功提示頁面 -->
     <div id="success-page">
-        <div class="success-icon">✓</div>
+        <div style="width:80px; height:80px; background:#4CAF50; color:white; border-radius:50%; font-size:50px; line-height:80px; text-align:center; margin-bottom:20px;">✓</div>
         <h2 style="color: var(--dark-espresso); margin-bottom: 10px;">訂單已成功送出！</h2>
-        <p style="color: #666;">訊息已發送至聊天室</p>
         <div class="loader"></div>
         <p style="color: #999; font-size: 0.9rem;">正在返回點餐頁面...</p>
     </div>
 
+    <!-- 🟢 歷史紀錄彈窗 -->
+    <div id="history-modal" class="modal-overlay">
+        <div style="background:white; width:85%; max-width:350px; padding:20px; border-radius:15px; text-align:left;">
+            <h3 style="margin-top:0;">📜 最近點餐紀錄</h3>
+            <div id="history-data" style="max-height:200px; overflow-y:auto; font-size:0.9rem; color:#555;">
+                目前尚無紀錄
+            </div>
+            <button onclick="toggleHistory(false)" style="width:100%; margin-top:15px; padding:10px; background:var(--dark-espresso); color:white; border:none; border-radius:8px;">關閉</button>
+        </div>
+    </div>
+
     <div class="main-layout" id="main-content">
         <div class="header-area">
+            <!-- 找回按鈕 -->
+            <button class="history-btn" onclick="toggleHistory(true)">📜 歷史紀錄</button>
             <h1 style="color:white; margin:0; font-size:1.3rem;">午餐團購小助手</h1>
         </div>
 
@@ -119,7 +138,7 @@
                 <span id="price-display" style="font-size:1.8rem; font-weight:800; color:var(--dark-espresso);">$0</span>
             </div>
             <button class="btn-main-order" id="order-submit" onclick="handleOrder()" disabled>確認送出訂單</button>
-            <button style="background:none; border:none; color:#999; text-decoration:underline; font-size:0.85rem;" onclick="resetCart()">🔄 重設清單</button>
+            <button style="background:none; border:none; color:#999; text-decoration:underline; font-size:0.85rem;" onclick="resetCart()">🔄 清除選擇並返回</button>
         </div>
     </div>
 
@@ -133,14 +152,17 @@
     ];
 
     let cart = {};
+    let orderHistory = [];
 
     function renderItems() {
         const container = document.getElementById('product-list');
+        if(!container) return;
+        
         container.innerHTML = items.map(i => {
             const count = cart[i.id] || 0;
             return `
                 <div class="product-card">
-                    <div style="flex:1;">
+                    <div style="flex:1; text-align:left;">
                         <div style="font-weight:700;">${i.name}</div>
                         <div style="font-size:0.75rem; color:#999; margin:3px 0;">${i.note}</div>
                         <div style="color:var(--price-accent); font-weight:700;">$${i.price}</div>
@@ -174,38 +196,51 @@
         renderItems();
     }
 
-    // 🏆 核心：發送訊息 + 顯示頁面 + 自動返回
     async function handleOrder() {
         const detail = Object.keys(cart).map(id => {
             const item = items.find(x => x.id == id);
             return `${item.name} x ${cart[id]}`;
         }).join('\n');
 
-        const message = "📋 我的訂單：\n" + detail;
+        // 存入歷史紀錄
+        orderHistory.unshift({ time: new Date().toLocaleTimeString(), content: detail.replace(/\n/g, ', ') });
+        updateHistoryUI();
 
-        // 1. 嘗試發送 LIFF 訊息
+        // 發送 LIFF 訊息
         if (liff.isInClient()) {
-            try {
-                await liff.sendMessages([{ type: 'text', text: message }]);
-            } catch (err) {
-                console.error('發送失敗', err);
-            }
-        } else {
-            console.log('模擬送出：', message);
+            try { await liff.sendMessages([{ type: 'text', text: "📋 我的訂單：\n" + detail }]); } 
+            catch (err) { console.error(err); }
         }
 
-        // 2. 切換到成功頁面
+        // 顯示成功頁面
         document.getElementById('main-content').style.opacity = '0';
         document.getElementById('success-page').style.display = 'flex';
 
-        // 3. 延遲 3 秒後自動重設並返回
+        // 3 秒後自動返回
         setTimeout(() => {
-            cart = {}; // 清空購物車
-            renderItems(); // 刷新介面
+            cart = {}; 
+            renderItems();
             document.getElementById('success-page').style.display = 'none';
             document.getElementById('main-content').style.opacity = '1';
-            document.querySelector('.menu-scroll-box').scrollTop = 0; // 滾回頂部
+            document.querySelector('.menu-scroll-box').scrollTop = 0;
         }, 3000);
+    }
+
+    function toggleHistory(show) {
+        document.getElementById('history-modal').style.display = show ? 'flex' : 'none';
+    }
+
+    function updateHistoryUI() {
+        const hContent = document.getElementById('history-data');
+        if (orderHistory.length === 0) {
+            hContent.innerHTML = "目前尚無紀錄";
+        } else {
+            hContent.innerHTML = orderHistory.map(h => 
+                `<div style="border-bottom:1px solid #eee; padding:8px 0;">
+                    <small style="color:#999;">${h.time}</small><br>${h.content}
+                </div>`
+            ).join('');
+        }
     }
 
     liff.init({ liffId: "2006132646-rOQ8yDax" }).then(() => renderItems());
