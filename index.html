@@ -22,7 +22,6 @@
             font-family: 'Noto Sans TC', sans-serif;
         }
 
-        /* 主佈局 */
         .main-layout {
             display: flex; flex-direction: column; height: 100vh;
             max-width: 500px; margin: 0 auto; transition: opacity 0.4s;
@@ -34,11 +33,16 @@
             padding: 0 20px 15px; position: relative; z-index: 10;
         }
 
-        /* 這裡是你的選單區，確保高度撐開 */
+        /* 歷史紀錄按鈕 */
+        .history-btn {
+            position: absolute; top: 15px; right: 15px;
+            background: rgba(255,255,255,0.2); color: white; border: none;
+            padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; cursor: pointer;
+        }
+
         .menu-scroll-box { 
             flex: 1; overflow-y: auto !important; 
             -webkit-overflow-scrolling: touch; padding: 15px;
-            display: block; /* 確保它是可見的 */
         }
 
         .product-card { 
@@ -69,19 +73,23 @@
             justify-content: center; align-items: center; cursor: pointer;
         }
 
-        /* 成功頁面：預設隱藏 */
         #success-page {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: white; z-index: 9999; display: none; /* 重要：一開始不顯示 */
+            background: white; z-index: 9999; display: none;
             flex-direction: column; justify-content: center; align-items: center;
         }
 
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); z-index: 10000; justify-content: center; align-items: center;
+        }
+
         .checkmark { width: 80px; height: 80px; background: #4CAF50; border-radius: 50%; color: white; font-size: 50px; line-height: 80px; margin-bottom: 20px; text-align: center; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <!-- 成功畫面區 -->
     <div id="success-page">
         <div class="checkmark">✓</div>
         <h2 style="color: var(--dark-espresso);">訂單已成功送出！</h2>
@@ -89,16 +97,25 @@
         <div style="width: 30px; height: 30px; border: 4px solid #f3f3f3; border-top: 4px solid var(--price-accent); border-radius: 50%; animation: spin 1s linear infinite;"></div>
     </div>
 
-    <!-- 主程式區 -->
+    <!-- 歷史紀錄彈窗 -->
+    <div id="history-modal" class="modal-overlay">
+        <div style="background:white; width:85%; max-width:350px; padding:20px; border-radius:15px;">
+            <h3 style="margin-top:0; color:var(--dark-espresso);">📜 最近點餐紀錄</h3>
+            <div id="history-data" style="max-height:250px; overflow-y:auto; font-size:0.9rem; color:#555; text-align:left;">
+                目前尚無紀錄
+            </div>
+            <button onclick="toggleHistory(false)" style="width:100%; margin-top:15px; padding:12px; background:var(--dark-espresso); color:white; border:none; border-radius:8px;">關閉</button>
+        </div>
+    </div>
+
     <div class="main-layout" id="main-content">
         <div class="header-area">
+            <button class="history-btn" onclick="toggleHistory(true)">📜 歷史紀錄</button>
             <h1 style="color:white; margin:0; font-size:1.3rem;">午餐團購小助手</h1>
         </div>
 
         <div class="menu-scroll-box" id="scroll-container">
-            <div id="product-list">
-                <!-- 這裡會由 JS 填入內容 -->
-            </div>
+            <div id="product-list"></div>
             <div style="height: 50px;"></div>
         </div>
 
@@ -109,14 +126,11 @@
             </div>
             <button class="btn-main-order" id="order-submit" onclick="handleOrder()" disabled>確認送出訂單</button>
             <br>
-            <button style="margin-top:10px; background:none; border:none; color:#999; text-decoration:underline;" onclick="resetCart()">清除並重新點餐</button>
+            <button style="margin-top:10px; background:none; border:none; color:#999; text-decoration:underline; cursor:pointer;" onclick="resetCart()">清除並重新點餐</button>
         </div>
     </div>
 
-    <style> @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } } </style>
-
 <script>
-    // 1. 資料定義
     const items = [
         { id: 1, name: "起司牛肉堡", price: 120, note: "熱銷經典款" },
         { id: 2, name: "脆雞鮮蔬堡", price: 105, note: "清爽不油膩" },
@@ -126,10 +140,9 @@
     ];
 
     let cart = {};
+    let orderHistory = [];
 
-    // 2. 渲染函式 (確保這個有執行)
     function renderItems() {
-        console.log("正在渲染列表..."); // 除錯用
         const container = document.getElementById('product-list');
         if (!container) return;
 
@@ -150,7 +163,6 @@
                 </div>`;
         }).join('');
         
-        // 更新總價
         let total = 0;
         Object.keys(cart).forEach(id => {
             const item = items.find(x => x.id == id);
@@ -172,44 +184,51 @@
         renderItems();
     }
 
-    // 3. 核心功能：送出訂單
+    function toggleHistory(show) {
+        document.getElementById('history-modal').style.display = show ? 'flex' : 'none';
+    }
+
+    function updateHistoryUI() {
+        const hContent = document.getElementById('history-data');
+        if (orderHistory.length === 0) return;
+        hContent.innerHTML = orderHistory.map(h => 
+            `<div style="border-bottom:1px solid #eee; padding:10px 0;">
+                <b style="color:var(--price-accent); font-size:0.7rem;">${h.time}</b><br>${h.content}
+            </div>`
+        ).join('');
+    }
+
     async function handleOrder() {
         const detail = Object.keys(cart).map(id => {
             const item = items.find(x => x.id == id);
             return `${item.name} x ${cart[id]}`;
         }).join('\n');
 
-        // 先送出訊息給 LINE
+        // 紀錄到本地歷史
+        orderHistory.unshift({ time: new Date().toLocaleTimeString(), content: detail.replace(/\n/g, ', ') });
+        updateHistoryUI();
+
         if (liff.isInClient()) {
-            await liff.sendMessages([{ type: 'text', text: "📋 我的訂單：\n" + detail }]);
-        } else {
-            console.log("非 LINE 環境，訂單內容：\n", detail);
+            try {
+                await liff.sendMessages([{ type: 'text', text: "📋 我的訂單：\n" + detail }]);
+            } catch (e) { console.error("傳送失敗", e); }
         }
 
-        // 顯示成功頁面
         document.getElementById('success-page').style.display = 'flex';
         document.getElementById('main-content').style.opacity = '0';
 
-        // 3秒後自動歸位
         setTimeout(() => {
-            cart = {}; // 清空購物車
-            renderItems(); // 重新渲染
+            cart = {};
+            renderItems();
             document.getElementById('success-page').style.display = 'none';
             document.getElementById('main-content').style.opacity = '1';
             document.getElementById('scroll-container').scrollTop = 0;
         }, 3000);
     }
 
-    // 4. 初始化
     liff.init({ liffId: "2006132646-rOQ8yDax" })
-        .then(() => {
-            console.log("LIFF 初始化成功");
-            renderItems(); // 初始化後一定要執行一次渲染
-        })
-        .catch(err => {
-            console.error("LIFF 初始化失敗", err);
-            renderItems(); // 失敗也渲染，確保測試環境看得到
-        });
+        .then(() => { renderItems(); })
+        .catch(err => { renderItems(); });
 </script>
 </body>
 </html>
