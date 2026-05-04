@@ -16,7 +16,6 @@
             --primary-gradient: linear-gradient(135deg, #8D4B39 0%, #2D1B14 100%);
         }
 
-        /* 鎖定頁面結構 */
         html, body { 
             margin: 0; padding: 0; height: 100%; width: 100%;
             background-color: var(--parchment); overflow: hidden;
@@ -25,7 +24,7 @@
 
         .main-layout {
             display: flex; flex-direction: column; height: 100vh;
-            max-width: 500px; margin: 0 auto;
+            max-width: 500px; margin: 0 auto; transition: opacity 0.4s;
         }
 
         /* 頂部區域 */
@@ -33,12 +32,6 @@
             flex: 0 0 100px; background: linear-gradient(135deg, #1A100C 0%, #3D261E 100%);
             border-radius: 0 0 25px 25px; display: flex; align-items: flex-end;
             padding: 0 20px 15px; position: relative;
-        }
-
-        .history-btn {
-            position: absolute; top: 15px; right: 15px;
-            background: rgba(255,255,255,0.2); color: white; border: none;
-            padding: 5px 15px; border-radius: 20px; font-size: 0.8rem; cursor: pointer;
         }
 
         /* 菜單捲動區 */
@@ -64,44 +57,59 @@
         .btn-main-order {
             width: 100%; padding: 16px; border-radius: 50px; border: none;
             font-size: 1.1rem; font-weight: 700; color: white !important;
-            background: var(--primary-gradient) !important; /* 強制咖啡色 */
+            background: var(--primary-gradient) !important;
             box-shadow: 0 6px 15px rgba(141, 75, 57, 0.3);
             cursor: pointer; margin-bottom: 10px;
         }
 
-        .btn-main-order:disabled {
-            opacity: 0.6; cursor: not-allowed;
-        }
-
-        /* 返回/重新點餐功能 */
-        .btn-reset-link {
-            color: #888; font-size: 0.9rem; text-decoration: underline;
-            background: none; border: none; cursor: pointer; padding: 5px;
-        }
+        .btn-main-order:disabled { opacity: 0.6; cursor: not-allowed; }
 
         .qty-btn {
             background: var(--dark-espresso); color: white; border: none; 
-            width: 32px; height: 32px; border-radius: 50%; font-size: 1.2rem;
-            display: flex; justify-content: center; align-items: center;
+            width: 32px; height: 32px; border-radius: 50%; display: flex;
+            justify-content: center; align-items: center;
         }
 
-        .modal-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center;
+        /* 🟢 成功送出頁面樣式 */
+        #success-page {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: white; z-index: 2000; display: none;
+            flex-direction: column; justify-content: center; align-items: center;
+            text-align: center;
         }
+
+        .success-icon {
+            width: 80px; height: 80px; background: #4CAF50; color: white;
+            border-radius: 50%; font-size: 50px; line-height: 80px; margin-bottom: 20px;
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3; border-top: 4px solid var(--price-accent);
+            border-radius: 50%; width: 30px; height: 30px;
+            animation: spin 1s linear infinite; margin: 20px auto;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <div class="main-layout">
+    <!-- 成功提示頁面 -->
+    <div id="success-page">
+        <div class="success-icon">✓</div>
+        <h2 style="color: var(--dark-espresso); margin-bottom: 10px;">訂單已成功送出！</h2>
+        <p style="color: #666;">訊息已發送至聊天室</p>
+        <div class="loader"></div>
+        <p style="color: #999; font-size: 0.9rem;">正在返回點餐頁面...</p>
+    </div>
+
+    <div class="main-layout" id="main-content">
         <div class="header-area">
-            <button class="history-btn" onclick="toggleHistory(true)">📜 歷史紀錄</button>
             <h1 style="color:white; margin:0; font-size:1.3rem;">午餐團購小助手</h1>
         </div>
 
         <div class="menu-scroll-box">
             <div id="product-list"></div>
-            <!-- 防止被底部遮擋的緩衝空間 -->
             <div style="height: 30px;"></div>
         </div>
 
@@ -110,21 +118,8 @@
                 <span style="font-weight:500; color:var(--coffee-bean);">結帳總額</span>
                 <span id="price-display" style="font-size:1.8rem; font-weight:800; color:var(--dark-espresso);">$0</span>
             </div>
-            
-            <!-- 提交按鈕：恆定咖啡色 -->
             <button class="btn-main-order" id="order-submit" onclick="handleOrder()" disabled>確認送出訂單</button>
-            
-            <!-- 返回/重新點餐按鈕 -->
-            <button class="btn-reset-link" onclick="resetCart()">🔄 清除選擇並返回</button>
-        </div>
-    </div>
-
-    <!-- 歷史紀錄彈窗 -->
-    <div id="history-modal" class="modal-overlay">
-        <div style="background:white; width:85%; max-width:350px; padding:20px; border-radius:15px;">
-            <h3 style="margin-top:0;">最近點餐紀錄</h3>
-            <div id="history-data" style="max-height:200px; overflow-y:auto; font-size:0.9rem;"></div>
-            <button onclick="toggleHistory(false)" style="width:100%; margin-top:15px; padding:10px; background:var(--dark-espresso); color:white; border:none; border-radius:8px;">關閉</button>
+            <button style="background:none; border:none; color:#999; text-decoration:underline; font-size:0.85rem;" onclick="resetCart()">🔄 重設清單</button>
         </div>
     </div>
 
@@ -175,27 +170,42 @@
     }
 
     function resetCart() {
-        if (confirm("確定要清除所有選擇嗎？")) {
-            cart = {};
-            renderItems();
-        }
+        cart = {};
+        renderItems();
     }
 
-    function handleOrder() {
+    // 🏆 核心：發送訊息 + 顯示頁面 + 自動返回
+    async function handleOrder() {
         const detail = Object.keys(cart).map(id => {
             const item = items.find(x => x.id == id);
             return `${item.name} x ${cart[id]}`;
         }).join('\n');
-        
-        if (liff.isInClient()) {
-            liff.sendMessages([{ type: 'text', text: "📋 我的訂單：\n" + detail }]).then(() => liff.closeWindow());
-        } else {
-            alert("模擬送出訂單：\n" + detail);
-        }
-    }
 
-    function toggleHistory(show) {
-        document.getElementById('history-modal').style.display = show ? 'flex' : 'none';
+        const message = "📋 我的訂單：\n" + detail;
+
+        // 1. 嘗試發送 LIFF 訊息
+        if (liff.isInClient()) {
+            try {
+                await liff.sendMessages([{ type: 'text', text: message }]);
+            } catch (err) {
+                console.error('發送失敗', err);
+            }
+        } else {
+            console.log('模擬送出：', message);
+        }
+
+        // 2. 切換到成功頁面
+        document.getElementById('main-content').style.opacity = '0';
+        document.getElementById('success-page').style.display = 'flex';
+
+        // 3. 延遲 3 秒後自動重設並返回
+        setTimeout(() => {
+            cart = {}; // 清空購物車
+            renderItems(); // 刷新介面
+            document.getElementById('success-page').style.display = 'none';
+            document.getElementById('main-content').style.opacity = '1';
+            document.querySelector('.menu-scroll-box').scrollTop = 0; // 滾回頂部
+        }, 3000);
     }
 
     liff.init({ liffId: "2006132646-rOQ8yDax" }).then(() => renderItems());
