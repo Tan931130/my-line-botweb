@@ -9,99 +9,98 @@
 
     <style>
         :root {
-            /* 純粹深咖啡配色方案 */
-            --dark-espresso: #2D1B14;           /* 深黑咖啡 */
-            --coffee-bean: #4E342E;             /* 咖啡豆色 */
-            --caramel-active: #8D6E63;          /* 焦糖色 */
-            --latte-bg: #F5F1EE;                /* 淺拿鐵背景 */
-            --text-espresso: #211510;           /* 深褐文字 */
-            --white: #FFFFFF;
-            --price-tag: #A15C38;               /* 濃郁深棕 (價格) */
-            --card-shadow: 0 8px 25px rgba(45, 27, 20, 0.12);
+            /* 厚實深咖啡配色 */
+            --dark-espresso: #2D1B14;       /* 濃縮咖啡黑 */
+            --coffee-bean: #4E342E;         /* 烘焙豆棕 */
+            --parchment: #FDFBF9;           /* 暖奶油白背景 */
+            --price-accent: #8D4B39;        /* 濃郁棕 (價格) */
+            --card-shadow: 0 8px 20px rgba(45, 27, 20, 0.1);
         }
 
         body { 
             font-family: 'Noto Sans TC', sans-serif; 
-            background-color: var(--latte-bg); 
-            margin: 0; padding: 0; color: var(--text-espresso);
+            background-color: var(--parchment); 
+            margin: 0; color: var(--dark-espresso);
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* 讀取動畫 */
+        /* 讀取遮罩 */
         .loading-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--latte-bg);
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            z-index: 9999;
+            background: var(--parchment); display: flex; flex-direction: column; 
+            justify-content: center; align-items: center; z-index: 9999;
         }
         .loader {
-            border: 4px solid #D7CCC8; border-top: 4px solid var(--dark-espresso);
+            border: 4px solid #E0D7D2; border-top: 4px solid var(--dark-espresso);
             border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;
         }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* 頂部橫幅：改為深咖啡漸層 */
+        /* 頂部橫幅 */
         .hero-banner {
-            width: 100%; height: 160px; 
-            background: linear-gradient(135deg, #2D1B14 0%, #4E342E 100%);
-            border-radius: 0 0 30px 30px; display: flex; align-items: flex-end; padding-bottom: 40px;
+            width: 100%; height: 140px; 
+            background: linear-gradient(135deg, #1A100C 0%, #3D261E 100%);
+            border-radius: 0 0 30px 30px; display: flex; align-items: flex-end; padding-bottom: 35px;
         }
         .hero-content { padding-left: 25px; color: #FFF; }
         .status-badge {
-            display: inline-block; background: rgba(255, 255, 255, 0.15); 
-            padding: 4px 12px; border-radius: 15px; font-size: 0.7rem; border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.12); padding: 4px 12px; 
+            border-radius: 8px; font-size: 0.7rem; border: 1px solid rgba(255,255,255,0.2);
         }
 
-        .container { max-width: 500px; margin: -30px auto 0 auto; padding: 0 15px 150px 15px; }
-        
+        .container { max-width: 500px; margin: -25px auto 0 auto; padding: 0 15px 150px 15px; }
+
         .header-box {
-            background: var(--white); padding: 20px; border-radius: 20px; 
+            background: #FFF; padding: 18px; border-radius: 15px; 
             box-shadow: var(--card-shadow); margin-bottom: 20px; text-align: center;
-            border-bottom: 3px solid var(--coffee-bean);
+            border-bottom: 4px solid var(--dark-espresso);
         }
 
-        /* 菜單卡片：強化深色邊框與陰影 */
+        /* 菜單卡片 (移除圖片空間) */
         .menu-item { 
-            background: var(--white); margin-bottom: 15px; padding: 12px; border-radius: 18px;
-            display: flex; align-items: center; box-shadow: var(--card-shadow);
-            border: 1px solid #E0D7D2;
+            background: #FFF; margin-bottom: 12px; padding: 18px; border-radius: 15px;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: var(--card-shadow); border: 1px solid rgba(45, 27, 20, 0.05);
         }
-        .item-img { width: 80px; height: 80px; border-radius: 12px; object-fit: cover; margin-right: 15px; }
-        .item-info { flex: 1; }
-        .item-name { font-weight: 700; font-size: 1.05rem; color: var(--dark-espresso); }
-        .item-price { color: var(--price-tag); font-weight: 700; font-size: 1.1rem; margin-top: 5px; }
+        .item-info { flex: 1; padding-right: 15px; }
+        .item-name { font-weight: 700; font-size: 1.15rem; color: var(--dark-espresso); }
+        .item-note { font-size: 0.85rem; color: var(--coffee-bean); margin: 4px 0; opacity: 0.8; }
+        .item-price { color: var(--price-accent); font-weight: 700; font-size: 1.1rem; }
 
-        /* 數量控制：改為純深咖啡色 */
-        .controls { display: flex; flex-direction: column; align-items: center; gap: 8px; background: #EFE9E5; padding: 8px; border-radius: 25px; }
+        /* 數量控制器 */
+        .controls { 
+            display: flex; align-items: center; gap: 12px; 
+            background: #F2E9E4; padding: 6px 12px; border-radius: 30px; 
+        }
         .btn-circle {
-            background: var(--white); color: var(--dark-espresso); border: 1.5px solid var(--dark-espresso); 
-            width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 1.1rem; font-weight: bold;
-            display: flex; justify-content: center; align-items: center;
+            background: var(--dark-espresso); color: #FFF; border: none; 
+            width: 28px; height: 28px; border-radius: 50%; cursor: pointer; 
+            font-size: 1.2rem; display: flex; justify-content: center; align-items: center;
         }
-        .btn-circle:active { background: var(--dark-espresso); color: #FFF; }
-        .quantity { font-weight: 700; color: var(--dark-espresso); }
+        .btn-circle:active { transform: scale(0.9); opacity: 0.8; }
+        .quantity { font-weight: 700; color: var(--dark-espresso); min-width: 20px; text-align: center; }
 
-        /* 底部工具欄：深色霧面 */
+        /* 底部結帳欄 */
         .bottom-bar {
             position: fixed; bottom: 0; left: 0; right: 0; max-width: 500px; margin: auto;
-            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
-            padding: 20px 25px 35px 25px; border-radius: 25px 25px 0 0;
-            box-shadow: 0 -5px 20px rgba(45, 27, 20, 0.1); border-top: 1px solid #E0D7D2;
+            background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(15px);
+            padding: 20px 25px 40px 25px; border-radius: 25px 25px 0 0;
+            box-shadow: 0 -10px 30px rgba(45, 27, 20, 0.1); border-top: 1px solid #E0D7D2;
         }
         .total-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .total-price { color: var(--dark-espresso); font-size: 1.7rem; font-weight: 800; }
+        .total-price { color: var(--dark-espresso); font-size: 1.8rem; font-weight: 800; }
 
         .submit-btn {
-            width: 100%; padding: 16px; font-size: 1.1rem; font-weight: 700; color: #FFF;
+            width: 100%; padding: 16px; font-size: 1.15rem; font-weight: 700; color: #FFF;
             background: var(--dark-espresso); border: none; border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(45, 27, 20, 0.3); cursor: pointer; transition: 0.3s;
+            box-shadow: 0 8px 20px rgba(45, 27, 20, 0.35); cursor: pointer;
         }
-        .submit-btn:disabled { background: #BCAAA4; box-shadow: none; cursor: not-allowed; }
+        .submit-btn:disabled { background: #C6B7B0; box-shadow: none; cursor: not-allowed; }
 
         /* 成功動畫 */
         #success-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--white); z-index: 3000; flex-direction: column; justify-content: center; align-items: center;
+            background: #FFF; z-index: 3000; flex-direction: column; justify-content: center; align-items: center;
         }
         .checkmark-circle {
             width: 80px; height: 80px; border-radius: 50%; background: var(--dark-espresso);
@@ -113,18 +112,18 @@
 
     <div id="loading-mask" class="loading-overlay">
         <div class="loader"></div>
-        <p style="color: var(--coffee-bean); margin-top: 15px; font-weight: 500;">研磨選單中...</p>
+        <p style="color: var(--coffee-bean); margin-top: 15px; font-weight: 500;">載入精選菜單...</p>
     </div>
 
     <div id="success-overlay">
         <div class="checkmark-circle"><span style="color: #FFF; font-size: 40px;">✓</span></div>
-        <h2 style="margin-top: 20px; color: var(--dark-espresso);">訂單發送成功</h2>
+        <h2 style="margin-top: 20px; color: var(--dark-espresso);">訂單已送出</h2>
     </div>
 
     <div class="hero-banner">
         <div class="hero-content">
-            <div class="status-badge">Espresso Order System</div>
-            <h1 style="margin: 8px 0 0 0; font-size: 1.5rem; letter-spacing: 1px;">午餐團購專案</h1>
+            <div class="status-badge">ESPRESSO ORDERING</div>
+            <h1 style="margin: 8px 0 0 0; font-size: 1.6rem; font-weight: 700;">午餐團購專案</h1>
         </div>
     </div>
 
@@ -142,10 +141,10 @@
 
 <script>
     const menuData = [
-        { "id": 1, "item": "起司牛肉堡", "price": 120, "note": "多汁牛肉配香濃起司", "img": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200" },
-        { "id": 2, "item": "脆雞鮮蔬堡", "price": 105, "note": "在地小農契作生菜", "img": "https://images.unsplash.com/photo-1513185158878-8d8c196b3c6c?w=200" },
-        { "id": 3, "item": "貢丸湯", "price": 35, "note": "純手工古法製作", "img": "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=200" },
-        { "id": 4, "item": "經典大紅茶", "price": 25, "note": "回甘不苦澀", "img": "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=200" }
+        { "id": 1, "item": "起司牛肉堡", "price": 120, "note": "多汁牛肉配香濃起司" },
+        { "id": 2, "item": "脆雞鮮蔬堡", "price": 105, "note": "在地小農契作生菜" },
+        { "id": 3, "item": "貢丸湯", "price": 35, "note": "純手工古法製作" },
+        { "id": 4, "item": "經典大紅茶", "price": 25, "note": "回甘不苦澀" }
     ];
 
     let cart = JSON.parse(localStorage.getItem('groupBuyCart')) || {};
@@ -155,15 +154,14 @@
             await liff.init({ liffId: "2006132646-rOQ8yDax" });
             if (!liff.isLoggedIn()) liff.login();
             const profile = await liff.getProfile();
-            document.getElementById('display-name').innerText = `☕️ ${profile.displayName} 的菜單`;
+            document.getElementById('display-name').innerText = `☕️ ${profile.displayName} 的專屬選單`;
         } catch (err) {
             document.getElementById('display-name').innerText = "☕️ 點餐選單";
         } finally {
             setTimeout(() => {
-                const mask = document.getElementById('loading-mask');
-                mask.style.opacity = '0';
-                setTimeout(() => mask.style.display = 'none', 400);
-            }, 600);
+                document.getElementById('loading-mask').style.opacity = '0';
+                setTimeout(() => document.getElementById('loading-mask').style.display = 'none', 400);
+            }, 500);
         }
     }
 
@@ -172,16 +170,15 @@
             const qty = cart[product.id] || 0;
             return `
                 <div class="menu-item">
-                    <img src="${product.img}" class="item-img">
                     <div class="item-info">
                         <div class="item-name">${product.item}</div>
-                        <div style="font-size:0.8rem; color:var(--coffee-bean); margin-top:2px;">${product.note}</div>
+                        <div class="item-note">${product.note}</div>
                         <div class="item-price">$${product.price}</div>
                     </div>
                     <div class="controls">
-                        <button class="btn-circle" onclick="updateQty(${product.id}, 1)">+</button>
-                        <span class="quantity">${qty}</span>
                         <button class="btn-circle" onclick="updateQty(${product.id}, -1)" ${qty === 0 ? 'style="visibility:hidden"' : ''}>−</button>
+                        <span class="quantity">${qty}</span>
+                        <button class="btn-circle" onclick="updateQty(${product.id}, 1)">+</button>
                     </div>
                 </div>`;
         }).join('');
@@ -208,7 +205,7 @@
         let summary = orderItems.map(item => `${item.item} x ${cart[item.id]}`).join('\n');
         const total = document.getElementById('total-price').innerText;
 
-        if (!confirm(`📝 確認訂單：\n\n${summary}\n合計：${total}`)) return;
+        if (!confirm(`📝 確認訂單內容：\n\n${summary}\n合計：${total}`)) return;
 
         const msg = `📋 我的點餐：\n${summary}\n總計：${total}`;
         const showSuccess = () => {
@@ -218,7 +215,7 @@
         };
 
         if (liff.isInClient()) {
-            liff.sendMessages([{ type: 'text', text: msg }]).then(showSuccess).catch(() => alert('失敗'));
+            liff.sendMessages([{ type: 'text', text: msg }]).then(showSuccess).catch(() => alert('發送失敗'));
         } else {
             showSuccess();
         }
