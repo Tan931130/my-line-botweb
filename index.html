@@ -5,13 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AI 團購點餐小助手</title>
     
-    <!-- 引入專業中文字體 -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- 引入 LINE LIFF SDK -->
     <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
     <style>
-        /* --- 視覺定義 (CSS) --- */
         :root {
             --primary-color: #FF7E5F;
             --primary-gradient: linear-gradient(135deg, #FF7E5F 0%, #FEB47B 100%);
@@ -70,33 +67,36 @@
         }
         .header-box h2 { margin: 0; font-size: 1.2rem; color: #333; }
 
-        /* 菜單卡片 */
+        /* 菜單卡片優化：加入圖片 */
         .menu-item { 
-            background: white; margin-bottom: 15px; padding: 16px; 
-            border-radius: 18px; display: flex; justify-content: space-between; 
+            background: white; margin-bottom: 15px; padding: 12px; 
+            border-radius: 18px; display: flex; 
             align-items: center; box-shadow: var(--card-shadow);
             border: 1px solid rgba(0,0,0,0.02);
             transition: transform 0.2s ease;
         }
         .menu-item:active { transform: scale(0.98); }
         
+        .item-img {
+            width: 80px; height: 80px;
+            border-radius: 12px;
+            object-fit: cover;
+            margin-right: 15px;
+        }
+
         .item-info { flex: 1; cursor: pointer; }
         .item-name { font-weight: 700; font-size: 1.05rem; margin-bottom: 2px; }
         .item-note { font-size: 0.8rem; color: var(--text-sub); margin-bottom: 6px; }
         .item-price { color: #e44d26; font-weight: 700; font-size: 1.1rem; }
 
         /* 控制按鈕 */
-        .controls { display: flex; align-items: center; gap: 15px; background: #f8f9fa; padding: 5px 12px; border-radius: 30px; }
+        .controls { display: flex; flex-direction: column; align-items: center; gap: 8px; background: #f8f9fa; padding: 8px; border-radius: 30px; }
         .btn-circle {
             background: white; color: var(--primary-color); border: 1px solid #eee;
-            width: 30px; height: 30px; border-radius: 50%;
-            cursor: pointer; font-size: 1.1rem; font-weight: bold;
+            width: 28px; height: 28px; border-radius: 50%;
+            cursor: pointer; font-size: 1rem; font-weight: bold;
             display: flex; justify-content: center; align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: 0.2s;
         }
-        .btn-circle:active { background: #eee; }
-        .btn-circle:disabled { color: #ccc; box-shadow: none; }
-        .quantity { font-weight: 700; min-width: 20px; text-align: center; }
 
         /* 底部固定欄 */
         .bottom-bar {
@@ -109,7 +109,6 @@
             border-radius: 25px 25px 0 0;
         }
         .total-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .total-label { color: var(--text-sub); font-size: 0.9rem; }
         .total-price { color: var(--primary-color); font-size: 1.5rem; font-weight: 700; }
 
         .submit-btn {
@@ -119,7 +118,6 @@
             box-shadow: 0 8px 20px rgba(255, 126, 95, 0.3);
             cursor: pointer; transition: 0.3s;
         }
-        .submit-btn:hover { transform: translateY(-2px); }
 
         /* 詳情彈窗 */
         .modal {
@@ -130,14 +128,36 @@
             background: white; width: 80%; max-width: 350px; padding: 25px;
             border-radius: 25px; text-align: center; position: relative;
         }
-        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 1.5rem; color: #ccc; cursor: pointer; }
+
+        /* 成功動畫遮罩 */
+        #success-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: white; z-index: 3000; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .checkmark-circle {
+            width: 100px; height: 100px; border-radius: 50%; background: #4caf50;
+            display: flex; justify-content: center; align-items: center;
+            animation: scaleUp 0.5s ease;
+        }
+        .checkmark { color: white; font-size: 60px; }
+        @keyframes scaleUp { from { transform: scale(0); } to { transform: scale(1); } }
     </style>
 </head>
 <body>
 
+    <!-- 讀取遮罩 -->
     <div id="loading-mask" class="loading-overlay">
         <div class="loader"></div>
-        <p style="color: #888; font-size: 0.9rem;">AI 正在準備菜單...</p>
+        <p style="color: #888; font-size: 0.9rem;">正在準備美味菜單...</p>
+    </div>
+
+    <!-- 成功動畫遮罩 -->
+    <div id="success-overlay">
+        <div class="checkmark-circle">
+            <span class="checkmark">✓</span>
+        </div>
+        <h2 style="margin-top: 20px; color: #4caf50;">訂單發送成功！</h2>
+        <p style="color: #888;">正在為您關閉視窗...</p>
     </div>
 
     <div class="hero-banner">
@@ -155,17 +175,15 @@
 
         <div class="bottom-bar">
             <div class="total-row">
-                <span class="total-label">合計金額</span>
+                <span style="color: #A0A0A0;">合計金額</span>
                 <span id="total-price" class="total-price">$0</span>
             </div>
             <button class="submit-btn" onclick="sendOrder()">確認送出訂單</button>
         </div>
     </div>
 
-    <!-- 詳情彈窗 HTML -->
     <div id="item-modal" class="modal">
         <div class="modal-content">
-            <span class="close-modal" onclick="closeModal()">&times;</span>
             <h3 id="modal-title" style="color: var(--primary-color);"></h3>
             <p id="modal-desc" style="color: #666; line-height: 1.6;"></p>
             <button class="submit-btn" onclick="closeModal()">我瞭解了</button>
@@ -173,19 +191,18 @@
     </div>
 
 <script>
-    /* --- 核心邏輯 --- */
+    // 1. 增加圖片網址的資料庫
     const menuData = [
-        { "id": 1, "item": "起司牛肉堡", "price": 120, "note": "多汁牛肉配香濃起司", "desc": "嚴選紐西蘭草飼牛，手工拍打肉排，搭配兩片熔岩切達起司。" },
-        { "id": 2, "item": "脆雞鮮蔬堡", "price": 105, "note": "在地小農契作生菜", "desc": "酥脆金黃雞腿排，搭配每日配送新鮮生菜，清爽不油膩。" },
-        { "id": 3, "item": "貢丸湯", "price": 35, "note": "純手工古法製作", "desc": "新竹傳承三代技藝，Q彈帶勁，大骨熬製清甜湯頭。" },
-        { "id": 4, "item": "經典大紅茶", "price": 25, "note": "回甘不苦澀", "desc": "阿薩姆紅茶為基底，微糖配方，最完美的餐後解膩首選。" }
+        { "id": 1, "item": "起司牛肉堡", "price": 120, "note": "多汁牛肉配香濃起司", "img": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200", "desc": "嚴選紐西蘭草飼牛，手工拍打肉排，搭配兩片熔岩切達起司。" },
+        { "id": 2, "item": "脆雞鮮蔬堡", "price": 105, "note": "在地小農契作生菜", "img": "https://images.unsplash.com/photo-1513185158878-8d8c196b3c6c?w=200", "desc": "酥脆金黃雞腿排，搭配每日配送新鮮生菜，清爽不油膩。" },
+        { "id": 3, "item": "貢丸湯", "price": 35, "note": "純手工古法製作", "img": "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=200", "desc": "新竹傳承三代技藝，Q彈帶勁，大骨熬製清甜湯頭。" },
+        { "id": 4, "item": "經典大紅茶", "price": 25, "note": "回甘不苦澀", "img": "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=200", "desc": "阿薩姆紅茶為基底，微糖配方，最完美的餐後解膩首選。" }
     ];
 
     let cart = {};
 
     async function initLIFF() {
         try {
-            // 請記得將下方替換成你的真實 LIFF ID
             await liff.init({ liffId: "你的_LIFF_ID_HERE" }); 
             if (!liff.isLoggedIn()) {
                 liff.login();
@@ -200,7 +217,7 @@
                 const mask = document.getElementById('loading-mask');
                 mask.style.opacity = '0';
                 setTimeout(() => mask.style.display = 'none', 500);
-            }, 1000);
+            }, 800);
         }
     }
 
@@ -210,15 +227,16 @@
             const qty = cart[product.id] || 0;
             return `
                 <div class="menu-item">
+                    <img src="${product.img}" class="item-img" onclick="showDetail(${product.id})">
                     <div class="item-info" onclick="showDetail(${product.id})">
                         <div class="item-name">${product.item} ⓘ</div>
                         <div class="item-note">${product.note}</div>
                         <div class="item-price">$${product.price}</div>
                     </div>
                     <div class="controls">
-                        <button class="btn-circle" onclick="updateQty(${product.id}, -1)" ${qty === 0 ? 'disabled' : ''}>−</button>
-                        <span class="quantity">${qty}</span>
                         <button class="btn-circle" onclick="updateQty(${product.id}, 1)">+</button>
+                        <span class="quantity">${qty}</span>
+                        <button class="btn-circle" onclick="updateQty(${product.id}, -1)" ${qty === 0 ? 'style="visibility:hidden"' : ''}>−</button>
                     </div>
                 </div>
             `;
@@ -241,7 +259,6 @@
         const currentQty = cart[id] || 0;
         if (currentQty + change >= 0) {
             cart[id] = currentQty + change;
-            // 觸發手機震動回饋
             if (window.navigator.vibrate) window.navigator.vibrate(20);
         }
         renderMenu();
@@ -266,12 +283,21 @@
         });
         orderText += `\n總計：${document.getElementById('total-price').innerText}`;
 
+        // 模擬成功動畫邏輯
+        const showSuccess = () => {
+            document.getElementById('success-overlay').style.display = 'flex';
+            setTimeout(() => {
+                if (liff.isInClient()) liff.closeWindow();
+                else document.getElementById('success-overlay').style.display = 'none';
+            }, 2000);
+        };
+
         if (liff.isInClient()) {
             liff.sendMessages([{ type: 'text', text: orderText }])
-                .then(() => liff.closeWindow())
-                .catch(err => alert('發送失敗，請確認權限設定。'));
+                .then(() => showSuccess())
+                .catch(err => alert('發送失敗'));
         } else {
-            alert("訂單已模擬送出：\n" + orderText);
+            showSuccess();
         }
     }
 
