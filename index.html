@@ -16,204 +16,168 @@
             --primary-gradient: linear-gradient(135deg, #8D4B39 0%, #2D1B14 100%);
         }
 
-        /* 關鍵：讓 body 變成一個固定高度的容器 */
-        body, html { 
+        /* 鎖定背景防止彈跳 */
+        html, body { 
             margin: 0; padding: 0; height: 100%; width: 100%;
+            background-color: var(--parchment); overflow: hidden;
             font-family: 'Noto Sans TC', sans-serif;
-            background-color: var(--parchment);
-            overflow: hidden; /* 防止整個背景被拖動 */
         }
 
-        /* 主容器使用 Flex 佈局 */
-        .viewport {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            max-width: 500px;
-            margin: 0 auto;
+        .main-container {
+            display: flex; flex-direction: column; height: 100vh;
+            max-width: 500px; margin: 0 auto;
         }
 
-        /* 頂部區域 - 固定高度 */
-        .hero-banner {
-            flex: 0 0 110px;
-            background: linear-gradient(135deg, #1A100C 0%, #3D261E 100%);
-            border-radius: 0 0 25px 25px;
-            display: flex; align-items: flex-end; padding: 0 20px 20px;
-            position: relative;
+        /* 頂部橫幅 */
+        .header-banner {
+            flex: 0 0 100px; background: linear-gradient(135deg, #1A100C 0%, #3D261E 100%);
+            border-radius: 0 0 25px 25px; display: flex; align-items: flex-end;
+            padding: 0 20px 15px; position: relative;
         }
 
-        /* 右上角歷史紀錄 - 固定位置 */
-        .history-float-btn {
+        .history-btn {
             position: absolute; top: 15px; right: 15px;
-            background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px);
-            color: white; border: 1px solid rgba(255,255,255,0.3);
-            padding: 6px 14px; border-radius: 20px; font-size: 0.8rem;
-            z-index: 1000; cursor: pointer;
+            background: rgba(255,255,255,0.2); color: white; border: none;
+            padding: 5px 12px; border-radius: 20px; font-size: 0.8rem;
         }
 
-        /* 關鍵修正：中間區域獨立捲動 */
-        .scroll-content { 
-            flex: 1; 
-            overflow-y: auto; /* 允許捲動 */
-            -webkit-overflow-scrolling: touch; /* 讓 iOS 捲動更順 */
-            padding: 20px 15px;
+        /* 關鍵：強制中間捲動區塊 */
+        .menu-scroller { 
+            flex: 1; overflow-y: scroll !important; 
+            -webkit-overflow-scrolling: touch; padding: 15px;
         }
 
-        .menu-item { 
-            background: #FFF; margin-bottom: 12px; padding: 18px; border-radius: 15px;
+        .item-card { 
+            background: white; margin-bottom: 12px; padding: 15px; border-radius: 15px;
             display: flex; align-items: center; justify-content: space-between;
-            box-shadow: 0 4px 12px rgba(45, 27, 20, 0.08);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
 
-        /* 底部區域 - 固定在最下方 */
-        .footer-action {
-            flex: 0 0 auto;
-            background: white;
-            padding: 15px 25px 30px;
-            border-radius: 25px 25px 0 0;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.08);
-            z-index: 100;
+        /* 底部操作區 */
+        .checkout-bar {
+            flex: 0 0 auto; background: white; padding: 15px 20px 30px;
+            border-top: 1px solid #EEE; box-shadow: 0 -5px 15px rgba(0,0,0,0.05);
         }
 
-        /* 解決按鈕顏色消失問題 */
-        .submit-btn {
+        /* 恆定咖啡色按鈕 */
+        .btn-confirm {
             width: 100%; padding: 16px; border-radius: 50px; border: none;
             font-size: 1.1rem; font-weight: 700; color: white !important;
-            background: var(--primary-gradient) !important; /* 強制顯色 */
+            background: var(--primary-gradient) !important; /* 強制背景色 */
             box-shadow: 0 6px 15px rgba(141, 75, 57, 0.3);
             cursor: pointer;
         }
 
-        .submit-btn:disabled {
-            background: #D1C7C2 !important; /* 禁用時變灰 */
-            box-shadow: none !important;
-            opacity: 0.7;
+        /* 即使不可點擊，也不要變色 */
+        .btn-confirm:disabled {
+            opacity: 0.6; /* 僅稍微降低透明度，背景色依舊是咖啡色 */
+            cursor: not-allowed;
         }
 
-        .btn-circle {
+        .circle-control {
             background: var(--dark-espresso); color: white; border: none; 
             width: 30px; height: 30px; border-radius: 50%; font-size: 1.2rem;
             display: flex; justify-content: center; align-items: center;
         }
-
-        /* 歷史紀錄彈窗 */
-        .modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7); z-index: 3000; justify-content: center; align-items: center;
-        }
-        .modal-content { background: white; width: 85%; max-width: 400px; border-radius: 20px; padding: 25px; }
     </style>
 </head>
 <body>
 
-    <div class="viewport">
-        <div class="hero-banner">
-            <button class="history-float-btn" onclick="showOrderHistory()">📜 歷史紀錄</button>
-            <h1 style="color:white; margin:0; font-size:1.4rem;">午餐團購小助手</h1>
+    <div class="main-container">
+        <div class="header-banner">
+            <button class="history-btn" onclick="openHistory()">📜 歷史紀錄</button>
+            <h1 style="color:white; margin:0; font-size:1.3rem;">午餐團購小助手</h1>
         </div>
 
-        <div class="scroll-content">
+        <!-- 確保這裡可以滾動 -->
+        <div class="menu-scroller">
             <div id="menu-list"></div>
-            <div style="height: 20px;"></div>
+            <div style="height: 30px;"></div>
         </div>
 
-        <div class="footer-action">
+        <div class="checkout-bar">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <span style="font-weight:500; color:var(--coffee-bean);">結帳總額</span>
-                <span id="total-price" style="font-size:1.8rem; font-weight:800; color:var(--dark-espresso);">$0</span>
+                <span style="font-weight:500;">結帳總額</span>
+                <span id="total-price" style="font-size:1.7rem; font-weight:800;">$0</span>
             </div>
-            <button class="submit-btn" id="submit-button" onclick="sendOrder()" disabled>確認點餐</button>
+            <!-- 按鈕永遠維持漸層咖啡色 -->
+            <button class="btn-confirm" id="submit-button" onclick="sendOrder()" disabled>確認點餐</button>
         </div>
     </div>
 
-    <div id="history-modal" class="modal">
-        <div class="modal-content">
-            <h3 style="margin-top:0;">最近點餐紀錄</h3>
-            <div id="history-list" style="max-height:300px; overflow-y:auto;"></div>
-            <button onclick="closeHistory()" style="width:100%; padding:12px; margin-top:15px; background:var(--dark-espresso); color:white; border:none; border-radius:10px;">關閉</button>
+    <!-- 歷史紀錄 -->
+    <div id="history-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:999; justify-content:center; align-items:center;">
+        <div style="background:white; width:85%; padding:20px; border-radius:15px;">
+            <h3>📜 歷史紀錄</h3>
+            <div id="history-content" style="max-height:250px; overflow-y:auto;"></div>
+            <button onclick="closeHistory()" style="width:100%; margin-top:15px; padding:10px; background:var(--dark-espresso); color:white; border:none; border-radius:10px;">關閉</button>
         </div>
     </div>
 
 <script>
-    const menuData = [
-        { "id": 1, "item": "起司牛肉堡", "price": 120, "note": "多汁牛肉配香濃起司" },
-        { "id": 2, "item": "脆雞鮮蔬堡", "price": 105, "note": "在地小農契作生菜" },
-        { "id": 3, "item": "貢丸湯", "price": 35, "note": "純手工古法製作" },
-        { "id": 4, "item": "經典大紅茶", "price": 25, "note": "回甘不苦澀" },
-        { "id": 5, "item": "加購：大份薯條", "price": 50, "note": "現點現炸" },
-        { "id": 6, "item": "加購：可樂(L)", "price": 35, "note": "冰涼解膩" }
+    const products = [
+        { id: 1, name: "起司牛肉堡", price: 120, info: "多汁牛肉配香濃起司" },
+        { id: 2, name: "脆雞鮮蔬堡", price: 105, info: "在地小農契作生菜" },
+        { id: 3, name: "貢丸湯", price: 35, info: "純手工古法製作" },
+        { id: 4, name: "經典大紅茶", price: 25, info: "回甘不苦澀" },
+        { id: 5, name: "黃金薯條", price: 45, info: "酥脆推薦" },
+        { id: 6, name: "雞塊(6塊)", price: 60, info: "人氣單品" }
     ];
 
-    let cart = JSON.parse(localStorage.getItem('groupBuyCart')) || {};
+    let myCart = {};
 
-    function renderMenu() {
-        const menuList = document.getElementById('menu-list');
-        menuList.innerHTML = menuData.map(p => {
-            const qty = cart[p.id] || 0;
+    function updateView() {
+        const list = document.getElementById('menu-list');
+        list.innerHTML = products.map(p => {
+            const count = myCart[p.id] || 0;
             return `
-                <div class="menu-item">
-                    <div style="flex:1;">
-                        <div style="font-weight:700; font-size:1.1rem;">${p.item}</div>
-                        <div style="font-size:0.8rem; color:#888; margin: 2px 0;">${p.note}</div>
-                        <div style="color:var(--price-accent); font-weight:700;">$${p.price}</div>
+                <div class="item-card">
+                    <div>
+                        <div style="font-weight:700;">${p.name}</div>
+                        <div style="font-size:0.75rem; color:#888;">${p.info}</div>
+                        <div style="color:var(--price-accent); font-weight:700; margin-top:5px;">$${p.price}</div>
                     </div>
-                    <div style="display:flex; align-items:center; gap:12px; background:#F2E9E4; padding:6px 12px; border-radius:25px;">
-                        <button class="btn-circle" onclick="updateQty(${p.id}, -1)" ${qty === 0 ? 'style="visibility:hidden"' : ''}>−</button>
-                        <span style="font-weight:700; width:20px; text-align:center;">${qty}</span>
-                        <button class="btn-circle" onclick="updateQty(${p.id}, 1)">+</button>
+                    <div style="display:flex; align-items:center; gap:12px; background:#F2E9E4; padding:6px 12px; border-radius:20px;">
+                        <button class="circle-control" onclick="changeQty(${p.id},-1)" ${count===0?'style="visibility:hidden"':''}>−</button>
+                        <span style="font-weight:700;">${count}</span>
+                        <button class="circle-control" onclick="changeQty(${p.id},1)">+</button>
                     </div>
                 </div>`;
         }).join('');
-        calculateTotal();
-    }
-
-    function updateQty(id, change) {
-        cart[id] = (cart[id] || 0) + change;
-        if (cart[id] <= 0) delete cart[id];
-        localStorage.setItem('groupBuyCart', JSON.stringify(cart));
-        renderMenu();
-    }
-
-    function calculateTotal() {
+        
         let total = 0;
-        menuData.forEach(p => total += (cart[p.id] || 0) * p.price);
+        Object.keys(myCart).forEach(id => {
+            const p = products.find(x => x.id == id);
+            total += p.price * myCart[id];
+        });
+        
         document.getElementById('total-price').innerText = `$${total}`;
         document.getElementById('submit-button').disabled = (total === 0);
     }
 
-    function showOrderHistory() {
-        const history = JSON.parse(localStorage.getItem('orderHistory') || '[]');
-        const container = document.getElementById('history-list');
-        container.innerHTML = history.length ? history.map(h => `
-            <div style="border-bottom:1px solid #EEE; padding:10px 0;">
-                <div style="font-size:0.75rem; color:#888;">${new Date(h.date).toLocaleDateString()}</div>
-                <div style="font-weight:700;">${h.details}</div>
-                <div style="color:var(--price-accent); text-align:right;">$${h.total}</div>
-            </div>`).join('') : '<p style="text-align:center;">暫無紀錄</p>';
-        document.getElementById('history-modal').style.display = 'flex';
+    function changeQty(id, num) {
+        myCart[id] = (myCart[id] || 0) + num;
+        if (myCart[id] <= 0) delete myCart[id];
+        updateView();
     }
 
-    function closeHistory() { document.getElementById('history-modal').style.display = 'none'; }
-
     function sendOrder() {
-        const items = menuData.filter(p => cart[p.id] > 0);
-        const details = items.map(i => `${i.item}x${cart[i.id]}`).join(', ');
-        const total = document.getElementById('total-price').innerText;
-
-        const history = JSON.parse(localStorage.getItem('orderHistory') || '[]');
-        history.unshift({ date: new Date().toISOString(), details, total: total.replace('$', '') });
-        localStorage.setItem('orderHistory', JSON.stringify(history.slice(0, 5)));
-
+        const summary = Object.keys(myCart).map(id => {
+            const p = products.find(x => x.id == id);
+            return `${p.name} x ${myCart[id]}`;
+        }).join('\n');
+        
         if (liff.isInClient()) {
-            liff.sendMessages([{ type: 'text', text: `📋 訂單已送出：\n${details}\n總計：${total}` }])
-                .then(() => { localStorage.removeItem('groupBuyCart'); liff.closeWindow(); });
+            liff.sendMessages([{ type: 'text', text: "📋 我的點餐內容：\n" + summary }]).then(() => liff.closeWindow());
         } else {
-            alert(`已送出訂單：${details}`);
-            location.reload();
+            alert("點餐內容：\n" + summary);
         }
     }
 
-    liff.init({ liffId: "2006132646-rOQ8yDax" }).then(() => renderMenu());
+    function openHistory() { document.getElementById('history-modal').style.display = 'flex'; }
+    function closeHistory() { document.getElementById('history-modal').style.display = 'none'; }
+
+    liff.init({ liffId: "2006132646-rOQ8yDax" }).then(() => updateView());
 </script>
 </body>
 </html>
