@@ -14,6 +14,7 @@
             --parchment: #FDFBF9;
             --price-accent: #8D4B39;
             --card-shadow: 0 8px 20px rgba(45, 27, 20, 0.1);
+            /* 定義按鈕漸層 */
             --primary-gradient: linear-gradient(135deg, #8D4B39 0%, #2D1B14 100%);
         }
 
@@ -21,41 +22,38 @@
             font-family: 'Noto Sans TC', sans-serif; 
             background-color: var(--parchment); 
             margin: 0; color: var(--dark-espresso);
-            -webkit-tap-highlight-color: transparent;
-            overflow-y: auto; /* 確保可以滾動 */
+            overflow-y: auto;
         }
 
         /* 右上角歷史紀錄按鈕 */
         .history-float-btn {
             position: absolute;
-            top: 20px;
+            top: 15px;
             right: 15px;
-            background: rgba(45, 27, 20, 0.8);
-            backdrop-filter: blur(5px);
+            background: rgba(45, 27, 20, 0.85);
+            backdrop-filter: blur(8px);
             color: white;
             border: none;
-            padding: 8px 15px;
+            padding: 8px 16px;
             border-radius: 30px;
             font-size: 0.85rem;
             font-weight: 500;
-            z-index: 500;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            z-index: 2000; /* 提高層級 */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             cursor: pointer;
         }
 
-        /* 頂部橫幅 */
         .hero-banner {
             width: 100%; height: 140px; 
             background: linear-gradient(135deg, #1A100C 0%, #3D261E 100%);
             border-radius: 0 0 30px 30px; display: flex; align-items: flex-end; padding-bottom: 35px;
-            position: relative;
         }
         .hero-content { padding-left: 25px; color: #FFF; }
 
         .container { 
             max-width: 500px; 
             margin: -25px auto 0 auto; 
-            padding: 0 15px 220px 15px; /* 增加底部間距，防止被結帳欄擋住 */
+            padding: 0 15px 220px 15px;
         }
 
         .header-box {
@@ -70,10 +68,8 @@
             display: flex; align-items: center; justify-content: space-between;
             box-shadow: var(--card-shadow); border: 1px solid rgba(45, 27, 20, 0.05);
         }
-        .item-info { flex: 1; padding-right: 10px; }
-        .item-name { font-weight: 700; font-size: 1.1rem; color: var(--dark-espresso); }
-        .item-note { font-size: 0.85rem; color: var(--coffee-bean); margin: 4px 0; opacity: 0.7; }
-        .item-price { color: var(--price-accent); font-weight: 700; font-size: 1.1rem; }
+        .item-name { font-weight: 700; font-size: 1.1rem; }
+        .item-price { color: var(--price-accent); font-weight: 700; }
 
         .controls { 
             display: flex; align-items: center; gap: 10px; 
@@ -81,96 +77,77 @@
         }
         .btn-circle {
             background: var(--dark-espresso); color: #FFF; border: none; 
-            width: 28px; height: 28px; border-radius: 50%; cursor: pointer; 
-            font-size: 1.2rem; display: flex; justify-content: center; align-items: center;
+            width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 1.2rem;
         }
-        .quantity { font-weight: 700; color: var(--dark-espresso); min-width: 20px; text-align: center; }
 
-        /* 底部結帳欄位固定 */
+        /* 底部結帳區 */
         .bottom-bar {
             position: fixed; bottom: 0; left: 0; right: 0; max-width: 500px; margin: auto;
             background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(15px);
             padding: 20px 25px 35px 25px; border-radius: 25px 25px 0 0;
-            box-shadow: 0 -10px 30px rgba(45, 27, 20, 0.1); border-top: 1px solid #E0D7D2;
-            z-index: 1000;
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.1); z-index: 1000;
         }
-        .total-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .total-price { color: var(--dark-espresso); font-size: 1.8rem; font-weight: 800; }
 
+        /* 修正按鈕顏色消失的問題 */
         .submit-btn {
-            width: 100%; padding: 15px; font-size: 1.1rem; font-weight: 700;
-            background: var(--primary-gradient); color: white; border: none; border-radius: 50px;
-            box-shadow: 0 8px 20px rgba(141, 75, 57, 0.25); cursor: pointer;
+            width: 100%; padding: 16px; font-size: 1.1rem; font-weight: 700;
+            background: var(--primary-gradient) !important; /* 強制使用漸層 */
+            color: white !important; 
+            border: none; border-radius: 50px;
+            box-shadow: 0 8px 20px rgba(141, 75, 57, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
         }
-        .submit-btn:disabled { background: #C6B7B0; box-shadow: none; cursor: not-allowed; opacity: 0.7; }
 
-        /* 彈窗樣式 */
+        /* 當按鈕被禁用時的樣式 */
+        .submit-btn:disabled {
+            background: #CCCCCC !important; /* 灰色 */
+            box-shadow: none;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
         .modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(45, 27, 20, 0.7); z-index: 2000; justify-content: center; align-items: center;
+            background: rgba(45, 27, 20, 0.8); z-index: 3000; justify-content: center; align-items: center;
         }
         .modal-content {
             background: var(--parchment); width: 85%; max-width: 400px; max-height: 70vh;
             border-radius: 20px; padding: 25px; overflow-y: auto;
         }
-        .history-card { 
-            background: #FFF; padding: 12px; border-radius: 12px; margin-bottom: 12px;
-            border-left: 5px solid var(--price-accent); box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        /* 讀取與成功遮罩 */
-        .overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--parchment); display: flex; flex-direction: column; 
-            justify-content: center; align-items: center; z-index: 9999;
-        }
     </style>
 </head>
 <body>
 
-    <!-- 載入中 -->
-    <div id="loading-mask" class="overlay">
-        <div style="border: 4px solid #E0D7D2; border-top: 4px solid var(--dark-espresso); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite;"></div>
-        <p style="margin-top:15px; color:var(--coffee-bean);">載入中...</p>
-    </div>
-
-    <!-- 歷史按鈕移至右上角 -->
     <button class="history-float-btn" onclick="showOrderHistory()">📜 歷史紀錄</button>
 
     <div class="hero-banner">
         <div class="hero-content">
-            <h1 style="margin: 0; font-size: 1.6rem; font-weight: 700;">午餐團購</h1>
+            <h1 style="margin: 0; font-size: 1.6rem;">午餐團購</h1>
         </div>
     </div>
 
     <div class="container">
         <div class="header-box"><h2 id="display-name" style="margin:0; font-size:1.1rem;">🏪 點餐選單</h2></div>
-        
-        <!-- 菜單列表 -->
         <div id="menu-list"></div>
         
-        <!-- 底部結帳區 -->
         <div class="bottom-bar">
-            <div class="total-row">
-                <span style="color: var(--coffee-bean); font-weight: 500;">結帳總額</span>
-                <span id="total-price" class="total-price">$0</span>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                <span style="font-weight: 500;">結帳總額</span>
+                <span id="total-price" style="font-size: 1.8rem; font-weight: 800;">$0</span>
             </div>
+            <!-- 確認點餐按鈕 -->
             <button class="submit-btn" id="submit-button" onclick="sendOrder()" disabled>確認點餐</button>
         </div>
     </div>
 
-    <!-- 歷史紀錄彈窗 -->
     <div id="history-modal" class="modal">
         <div class="modal-content">
-            <h3 style="border-bottom: 2px solid #E0D7D2; padding-bottom: 10px; margin-bottom: 15px;">📜 歷史點餐</h3>
+            <h3 style="margin-top:0;">📜 最近點餐紀錄</h3>
             <div id="history-list"></div>
             <button onclick="closeHistory()" style="width:100%; padding:12px; margin-top:15px; background:var(--dark-espresso); color:#FFF; border:none; border-radius:10px;">關閉</button>
         </div>
-    </div>
-
-    <div id="success-overlay" class="overlay" style="display:none; background:#FFF;">
-        <div style="width:80px; height:80px; border-radius:50%; background:var(--dark-espresso); display:flex; justify-content:center; align-items:center; color:#FFF; font-size:40px;">✓</div>
-        <h2 style="margin-top:20px; color:var(--dark-espresso);">訂單已發送</h2>
     </div>
 
 <script>
@@ -190,23 +167,23 @@
                 const profile = await liff.getProfile();
                 document.getElementById('display-name').innerText = `☕️ ${profile.displayName} 的選單`;
             }
-        } catch (err) { console.log(err); }
-        document.getElementById('loading-mask').style.display = 'none';
+        } catch (err) { console.error(err); }
     }
 
     function renderMenu() {
-        document.getElementById('menu-list').innerHTML = menuData.map(p => {
+        const menuList = document.getElementById('menu-list');
+        menuList.innerHTML = menuData.map(p => {
             const qty = cart[p.id] || 0;
             return `
                 <div class="menu-item">
-                    <div class="item-info">
+                    <div style="flex:1;">
                         <div class="item-name">${p.item}</div>
-                        <div class="item-note">${p.note}</div>
+                        <div style="font-size:0.8rem; opacity:0.7;">${p.note}</div>
                         <div class="item-price">$${p.price}</div>
                     </div>
                     <div class="controls">
                         <button class="btn-circle" onclick="updateQty(${p.id}, -1)" ${qty === 0 ? 'style="visibility:hidden"' : ''}>−</button>
-                        <span class="quantity">${qty}</span>
+                        <span style="font-weight:700; width:20px; text-align:center;">${qty}</span>
                         <button class="btn-circle" onclick="updateQty(${p.id}, 1)">+</button>
                     </div>
                 </div>`;
@@ -225,18 +202,21 @@
         let total = 0;
         menuData.forEach(p => total += (cart[p.id] || 0) * p.price);
         document.getElementById('total-price').innerText = `$${total}`;
-        document.getElementById('submit-button').disabled = total === 0;
+        
+        // 修正按鈕邏輯：大於 0 元才啟用
+        const btn = document.getElementById('submit-button');
+        btn.disabled = (total === 0);
     }
 
     function showOrderHistory() {
         const history = JSON.parse(localStorage.getItem('orderHistory') || '[]');
         const container = document.getElementById('history-list');
         container.innerHTML = history.length ? history.map(h => `
-            <div class="history-card">
+            <div style="background:#FFF; padding:10px; border-radius:10px; margin-bottom:10px; border-left:4px solid var(--price-accent);">
                 <div style="font-size:0.7rem; color:#888;">${new Date(h.date).toLocaleString()}</div>
-                <div style="font-weight:700; margin:5px 0;">${h.details}</div>
-                <div style="text-align:right; color:var(--price-accent); font-weight:700;">$${h.total}</div>
-            </div>`).join('') : '<p style="text-align:center;">暫無紀錄</p>';
+                <div style="font-weight:700;">${h.details}</div>
+                <div style="text-align:right; color:var(--price-accent);">$${h.total}</div>
+            </div>`).join('') : '<p style="text-align:center;">尚無紀錄</p>';
         document.getElementById('history-modal').style.display = 'flex';
     }
 
@@ -247,7 +227,7 @@
         const details = items.map(i => `${i.item}x${cart[i.id]}`).join(', ');
         const total = document.getElementById('total-price').innerText;
 
-        if (!confirm(`確認點餐：${details}`)) return;
+        if (!confirm(`確認送出訂單？\n${details}`)) return;
 
         const history = JSON.parse(localStorage.getItem('orderHistory') || '[]');
         history.unshift({ date: new Date().toISOString(), details, total: total.replace('$', '') });
@@ -257,18 +237,15 @@
         if (liff.isInClient()) {
             liff.sendMessages([{ type: 'text', text: msg }]).then(() => {
                 localStorage.removeItem('groupBuyCart');
-                document.getElementById('success-overlay').style.display = 'flex';
-                setTimeout(() => liff.closeWindow(), 1500);
+                liff.closeWindow();
             });
         } else {
-            document.getElementById('success-overlay').style.display = 'flex';
-            setTimeout(() => location.reload(), 1500);
+            alert("已模擬送出訂單！");
+            location.reload();
         }
     }
 
     window.onload = () => { initLIFF(); renderMenu(); };
 </script>
-
-<style> @keyframes spin { 100% { transform: rotate(360deg); } } </style>
 </body>
 </html>
