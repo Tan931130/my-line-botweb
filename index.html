@@ -90,14 +90,46 @@
         .total-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .total-price { color: var(--dark-espresso); font-size: 1.8rem; font-weight: 800; }
 
+        .button-row {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .submit-btn,
+        .history-btn {
+            width: 280px;
+            padding: 12px 20px;
+            font-size: 1rem;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
         .submit-btn {
-    width: 280px;
-    padding: 12px 20px;
-    font-size: 1rem;
-    margin: 0 auto;
-    display: block;
-}
-        .submit-btn:disabled { background: #C6B7B0; box-shadow: none; cursor: not-allowed; }
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 8px 20px rgba(0, 185, 0, 0.25);
+        }
+
+        .submit-btn:hover:not(:disabled) { transform: translateY(-1px); }
+
+        .submit-btn:disabled {
+            background: #C6B7B0;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .history-btn {
+            background: white;
+            color: var(--dark-espresso);
+            border: 1px solid rgba(0,0,0,0.08);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+
+        .history-btn:hover { background: #FBF5F2; }
 
         /* 成功動畫 */
         #success-overlay {
@@ -137,7 +169,10 @@
                 <span style="color: var(--coffee-bean); font-weight: 500;">結帳總額</span>
                 <span id="total-price" class="total-price">$0</span>
             </div>
-            <button class="submit-btn" id="submit-button" onclick="sendOrder()" disabled>確認點餐</button>
+            <div class="button-row">
+                <button class="submit-btn" id="submit-button" onclick="sendOrder()" disabled>確認點餐</button>
+                <button class="history-btn" onclick="showOrderHistory()">歷史訂單</button>
+            </div>
         </div>
     </div>
 
@@ -202,6 +237,30 @@
         document.getElementById('submit-button').disabled = (total === 0);
     }
 
+    function getOrderHistory() {
+        return JSON.parse(localStorage.getItem('groupBuyOrderHistory') || '[]');
+    }
+
+    function saveOrderHistory(entry) {
+        const history = getOrderHistory();
+        history.unshift(entry);
+        localStorage.setItem('groupBuyOrderHistory', JSON.stringify(history.slice(0, 10)));
+    }
+
+    function showOrderHistory() {
+        const history = getOrderHistory();
+        if (!history.length) {
+            alert('目前尚無歷史訂單。');
+            return;
+        }
+        const historyText = history.map((entry, index) => {
+            const time = new Date(entry.createdAt).toLocaleString('zh-TW', { hour12: false });
+            const items = entry.items.map(item => `  ${item.name} x ${item.qty}`).join('\n');
+            return `${index + 1}. ${time}\n${items}\n  合計：$${entry.total}`;
+        }).join('\n\n');
+        alert(`📜 歷史訂單：\n\n${historyText}`);
+    }
+
     function sendOrder() {
         const orderItems = menuData.filter(p => cart[p.id] > 0);
         let summary = orderItems.map(item => `${item.item} x ${cart[item.id]}`).join('\n');
@@ -210,7 +269,13 @@
         if (!confirm(`📝 確認訂單內容：\n\n${summary}\n合計：${total}`)) return;
 
         const msg = `📋 我的點餐：\n${summary}\n總計：${total}`;
+        const orderHistoryEntry = {
+            createdAt: new Date().toISOString(),
+            items: orderItems.map(item => ({ name: item.item, qty: cart[item.id], price: item.price })),
+            total: total.replace('$', '')
+        };
         const showSuccess = () => {
+            saveOrderHistory(orderHistoryEntry);
             localStorage.removeItem('groupBuyCart');
             document.getElementById('success-overlay').style.display = 'flex';
             setTimeout(() => { if (liff.isInClient()) liff.closeWindow(); else location.reload(); }, 2000);
