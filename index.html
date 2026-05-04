@@ -67,7 +67,7 @@
         }
         .header-box h2 { margin: 0; font-size: 1.2rem; color: #333; }
 
-        /* 菜單卡片優化：加入圖片 */
+        /* 菜單卡片 */
         .menu-item { 
             background: white; margin-bottom: 15px; padding: 12px; 
             border-radius: 18px; display: flex; 
@@ -119,6 +119,14 @@
             cursor: pointer; transition: 0.3s;
         }
 
+        /* 空購物車時的禁用樣式 */
+        .submit-btn:disabled {
+            background: #cccccc;
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         /* 詳情彈窗 */
         .modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -145,13 +153,11 @@
 </head>
 <body>
 
-    <!-- 讀取遮罩 -->
     <div id="loading-mask" class="loading-overlay">
         <div class="loader"></div>
         <p style="color: #888; font-size: 0.9rem;">正在準備美味菜單...</p>
     </div>
 
-    <!-- 成功動畫遮罩 -->
     <div id="success-overlay">
         <div class="checkmark-circle">
             <span class="checkmark">✓</span>
@@ -178,7 +184,7 @@
                 <span style="color: #A0A0A0;">合計金額</span>
                 <span id="total-price" class="total-price">$0</span>
             </div>
-            <button class="submit-btn" onclick="sendOrder()">確認送出訂單</button>
+            <button class="submit-btn" id="submit-button" onclick="sendOrder()">確認送出訂單</button>
         </div>
     </div>
 
@@ -191,7 +197,6 @@
     </div>
 
 <script>
-    // 1. 增加圖片網址的資料庫
     const menuData = [
         { "id": 1, "item": "起司牛肉堡", "price": 120, "note": "多汁牛肉配香濃起司", "img": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200", "desc": "嚴選紐西蘭草飼牛，手工拍打肉排，搭配兩片熔岩切達起司。" },
         { "id": 2, "item": "脆雞鮮蔬堡", "price": 105, "note": "在地小農契作生菜", "img": "https://images.unsplash.com/photo-1513185158878-8d8c196b3c6c?w=200", "desc": "酥脆金黃雞腿排，搭配每日配送新鮮生菜，清爽不油膩。" },
@@ -199,7 +204,8 @@
         { "id": 4, "item": "經典大紅茶", "price": 25, "note": "回甘不苦澀", "img": "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=200", "desc": "阿薩姆紅茶為基底，微糖配方，最完美的餐後解膩首選。" }
     ];
 
-    let cart = {};
+    // 初始化：從 LocalStorage 讀取購物車
+    let cart = JSON.parse(localStorage.getItem('groupBuyCart')) || {};
 
     async function initLIFF() {
         try {
@@ -259,6 +265,8 @@
         const currentQty = cart[id] || 0;
         if (currentQty + change >= 0) {
             cart[id] = currentQty + change;
+            // 存入 LocalStorage
+            localStorage.setItem('groupBuyCart', JSON.stringify(cart));
             if (window.navigator.vibrate) window.navigator.vibrate(20);
         }
         renderMenu();
@@ -268,49 +276,44 @@
         let total = 0;
         menuData.forEach(p => { total += (cart[p.id] || 0) * p.price; });
         document.getElementById('total-price').innerText = `$${total}`;
+        
+        // 控制按鈕禁用狀態
+        const btn = document.getElementById('submit-button');
+        btn.disabled = (total === 0);
     }
 
     function sendOrder() {
-    const orderItems = menuData.filter(p => cart[p.id] > 0);
-    if (orderItems.length === 0) {
-        alert("先選點好吃的東西吧！");
-        return;
+        const orderItems = menuData.filter(p => cart[p.id] > 0);
+        let summaryText = "";
+        orderItems.forEach(item => {
+            summaryText += `${item.item} x ${cart[item.id]}\n`;
+        });
+        const totalText = document.getElementById('total-price').innerText;
+
+        // 二次確認
+        const isConfirmed = confirm(`📝 請確認訂單內容：\n\n${summaryText}\n合計：${totalText}\n\n確定要送出嗎？`);
+        if (!isConfirmed) return;
+
+        let orderLineText = "📋 我的點餐紀錄：\n" + summaryText + "\n總計：" + totalText;
+
+        const showSuccess = () => {
+            // 清空本地儲存
+            localStorage.removeItem('groupBuyCart');
+            document.getElementById('success-overlay').style.display = 'flex';
+            setTimeout(() => {
+                if (liff.isInClient()) liff.closeWindow();
+                else location.reload();
+            }, 2000);
+        };
+
+        if (liff.isInClient()) {
+            liff.sendMessages([{ type: 'text', text: orderLineText }])
+                .then(() => showSuccess())
+                .catch(err => alert('發送失敗'));
+        } else {
+            showSuccess();
+        }
     }
-
-    // 1. 整理明細文字，供二次確認使用
-    let summaryText = "";
-    orderItems.forEach(item => {
-        summaryText += `${item.item} x ${cart[item.id]}\n`;
-    });
-    const totalText = document.getElementById('total-price').innerText;
-
-    // 2. 彈出二次確認視窗 (使用瀏覽器內建 confirm)
-    const isConfirmed = confirm(
-        `📝 請確認您的訂單內容：\n\n${summaryText}\n合計金額：${totalText}\n\n確定要送出嗎？`
-    );
-
-    // 3. 使用者按下「取消」就停止執行
-    if (!isConfirmed) return;
-
-    // 4. 使用者按下「確定」，開始原有的送出邏輯
-    let orderLineText = "📋 我的點餐紀錄：\n" + summaryText + "\n總計：" + totalText;
-
-    const showSuccess = () => {
-        document.getElementById('success-overlay').style.display = 'flex';
-        setTimeout(() => {
-            if (liff.isInClient()) liff.closeWindow();
-            else document.getElementById('success-overlay').style.display = 'none';
-        }, 2000);
-    };
-
-    if (liff.isInClient()) {
-        liff.sendMessages([{ type: 'text', text: orderLineText }])
-            .then(() => showSuccess())
-            .catch(err => alert('發送失敗'));
-    } else {
-        showSuccess();
-    }
-}
 
     initLIFF();
     renderMenu();
