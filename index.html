@@ -16,46 +16,46 @@
             --primary-gradient: linear-gradient(135deg, #8D4B39 0%, #2D1B14 100%);
         }
 
-        /* 關鍵：設定 body 為滿版且不捲動 */
+        /* 關鍵：讓 body 變成一個固定高度的容器 */
         body, html { 
             margin: 0; padding: 0; height: 100%; width: 100%;
             font-family: 'Noto Sans TC', sans-serif;
             background-color: var(--parchment);
-            overflow: hidden; /* 防止整個頁面被拉動 */
+            overflow: hidden; /* 防止整個背景被拖動 */
         }
 
-        .main-wrapper {
+        /* 主容器使用 Flex 佈局 */
+        .viewport {
             display: flex;
             flex-direction: column;
-            height: 100vh; /* 滿版高度 */
+            height: 100vh;
             max-width: 500px;
             margin: 0 auto;
-            position: relative;
         }
 
-        /* 頂部區域 */
+        /* 頂部區域 - 固定高度 */
         .hero-banner {
-            flex: 0 0 120px;
+            flex: 0 0 110px;
             background: linear-gradient(135deg, #1A100C 0%, #3D261E 100%);
             border-radius: 0 0 25px 25px;
-            display: flex; align-items: flex-end; padding: 0 25px 20px;
+            display: flex; align-items: flex-end; padding: 0 20px 20px;
             position: relative;
         }
 
-        /* 歷史按鈕：固定在右上角 */
+        /* 右上角歷史紀錄 - 固定位置 */
         .history-float-btn {
-            position: absolute; top: 20px; right: 20px;
-            background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px);
+            position: absolute; top: 15px; right: 15px;
+            background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(8px);
             color: white; border: 1px solid rgba(255,255,255,0.3);
-            padding: 6px 16px; border-radius: 20px; font-size: 0.85rem;
+            padding: 6px 14px; border-radius: 20px; font-size: 0.8rem;
             z-index: 1000; cursor: pointer;
         }
 
-        /* 關鍵修正：中間菜單捲動區 */
-        .scroll-container { 
+        /* 關鍵修正：中間區域獨立捲動 */
+        .scroll-content { 
             flex: 1; 
-            overflow-y: auto; /* 只有這裡可以捲動 */
-            -webkit-overflow-scrolling: touch;
+            overflow-y: auto; /* 允許捲動 */
+            -webkit-overflow-scrolling: touch; /* 讓 iOS 捲動更順 */
             padding: 20px 15px;
         }
 
@@ -65,34 +65,29 @@
             box-shadow: 0 4px 12px rgba(45, 27, 20, 0.08);
         }
 
-        /* 底部固定區 */
-        .bottom-bar {
+        /* 底部區域 - 固定在最下方 */
+        .footer-action {
             flex: 0 0 auto;
             background: white;
             padding: 15px 25px 30px;
             border-radius: 25px 25px 0 0;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.08);
             z-index: 100;
         }
 
-        .total-row {
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;
-        }
-
-        /* 按鈕顯色修正：使用更高優先權 */
+        /* 解決按鈕顏色消失問題 */
         .submit-btn {
             width: 100%; padding: 16px; border-radius: 50px; border: none;
             font-size: 1.1rem; font-weight: 700; color: white !important;
-            background: var(--primary-gradient) !important;
+            background: var(--primary-gradient) !important; /* 強制顯色 */
             box-shadow: 0 6px 15px rgba(141, 75, 57, 0.3);
-            cursor: pointer; transition: 0.3s;
+            cursor: pointer;
         }
 
         .submit-btn:disabled {
-            background: #D1C7C2 !important;
+            background: #D1C7C2 !important; /* 禁用時變灰 */
             box-shadow: none !important;
             opacity: 0.7;
-            cursor: not-allowed;
         }
 
         .btn-circle {
@@ -101,7 +96,7 @@
             display: flex; justify-content: center; align-items: center;
         }
 
-        /* 歷史彈窗 */
+        /* 歷史紀錄彈窗 */
         .modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.7); z-index: 3000; justify-content: center; align-items: center;
@@ -111,20 +106,19 @@
 </head>
 <body>
 
-    <div class="main-wrapper">
+    <div class="viewport">
         <div class="hero-banner">
             <button class="history-float-btn" onclick="showOrderHistory()">📜 歷史紀錄</button>
-            <h1 style="color:white; margin:0; font-size:1.5rem;">午餐團購</h1>
+            <h1 style="color:white; margin:0; font-size:1.4rem;">午餐團購小助手</h1>
         </div>
 
-        <!-- 捲動區塊 -->
-        <div class="scroll-container">
+        <div class="scroll-content">
             <div id="menu-list"></div>
+            <div style="height: 20px;"></div>
         </div>
 
-        <!-- 底部區塊 -->
-        <div class="bottom-bar">
-            <div class="total-row">
+        <div class="footer-action">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
                 <span style="font-weight:500; color:var(--coffee-bean);">結帳總額</span>
                 <span id="total-price" style="font-size:1.8rem; font-weight:800; color:var(--dark-espresso);">$0</span>
             </div>
@@ -132,10 +126,9 @@
         </div>
     </div>
 
-    <!-- 彈窗 -->
     <div id="history-modal" class="modal">
         <div class="modal-content">
-            <h3 style="margin-top:0;">📜 最近點餐紀錄</h3>
+            <h3 style="margin-top:0;">最近點餐紀錄</h3>
             <div id="history-list" style="max-height:300px; overflow-y:auto;"></div>
             <button onclick="closeHistory()" style="width:100%; padding:12px; margin-top:15px; background:var(--dark-espresso); color:white; border:none; border-radius:10px;">關閉</button>
         </div>
@@ -147,8 +140,8 @@
         { "id": 2, "item": "脆雞鮮蔬堡", "price": 105, "note": "在地小農契作生菜" },
         { "id": 3, "item": "貢丸湯", "price": 35, "note": "純手工古法製作" },
         { "id": 4, "item": "經典大紅茶", "price": 25, "note": "回甘不苦澀" },
-        { "id": 5, "item": "加購：薯條", "price": 40, "note": "金黃酥脆" },
-        { "id": 6, "item": "加購：雞塊", "price": 55, "note": "6塊裝" }
+        { "id": 5, "item": "加購：大份薯條", "price": 50, "note": "現點現炸" },
+        { "id": 6, "item": "加購：可樂(L)", "price": 35, "note": "冰涼解膩" }
     ];
 
     let cart = JSON.parse(localStorage.getItem('groupBuyCart')) || {};
@@ -160,9 +153,9 @@
             return `
                 <div class="menu-item">
                     <div style="flex:1;">
-                        <div style="font-weight:700;">${p.item}</div>
-                        <div style="font-size:0.8rem; color:#888;">${p.note}</div>
-                        <div style="color:var(--price-accent); font-weight:700; margin-top:5px;">$${p.price}</div>
+                        <div style="font-weight:700; font-size:1.1rem;">${p.item}</div>
+                        <div style="font-size:0.8rem; color:#888; margin: 2px 0;">${p.note}</div>
+                        <div style="color:var(--price-accent); font-weight:700;">$${p.price}</div>
                     </div>
                     <div style="display:flex; align-items:center; gap:12px; background:#F2E9E4; padding:6px 12px; border-radius:25px;">
                         <button class="btn-circle" onclick="updateQty(${p.id}, -1)" ${qty === 0 ? 'style="visibility:hidden"' : ''}>−</button>
@@ -194,9 +187,9 @@
         container.innerHTML = history.length ? history.map(h => `
             <div style="border-bottom:1px solid #EEE; padding:10px 0;">
                 <div style="font-size:0.75rem; color:#888;">${new Date(h.date).toLocaleDateString()}</div>
-                <div style="font-weight:700; margin:4px 0;">${h.details}</div>
-                <div style="color:var(--price-accent); font-weight:700; text-align:right;">$${h.total}</div>
-            </div>`).join('') : '<p style="text-align:center; color:#888;">尚無點餐紀錄</p>';
+                <div style="font-weight:700;">${h.details}</div>
+                <div style="color:var(--price-accent); text-align:right;">$${h.total}</div>
+            </div>`).join('') : '<p style="text-align:center;">暫無紀錄</p>';
         document.getElementById('history-modal').style.display = 'flex';
     }
 
